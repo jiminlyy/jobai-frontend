@@ -5,6 +5,9 @@ import { parseCompanyType } from '@/types/job';
 import WelcomeCard from '@/components/home/WelcomeCard';
 import DeadlineCard, { type DeadlineItem } from '@/components/home/DeadlineCard';
 import AINewsCard from '@/components/home/AINewsCard';
+import TrendingScrap, {
+  type TrendingScrapItem,
+} from '@/components/home/TrendingScrap';
 import FilterBar from '@/components/home/FilterBar';
 import JobList from '@/components/home/JobList';
 import NoResults from '@/components/home/NoResults';
@@ -45,8 +48,24 @@ export default function HomePage() {
     []
   );
 
+  const trendingItems = useMemo<TrendingScrapItem[]>(
+    () =>
+      [...mockJobs]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5)
+        .map((j, i) => ({
+          id: j.id,
+          rank: i + 1,
+          title: j.title,
+          company: j.company,
+        })),
+    []
+  );
+
   return (
     <>
+      {!isSearching && <TrendingScrap items={trendingItems} />}
+
       {!isSearching && (
         <section className="mb-9 grid grid-cols-3 gap-4">
           <WelcomeCard />
