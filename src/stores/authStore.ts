@@ -14,7 +14,7 @@ interface AuthState {
 
 const mockUser: AuthUser = {
   id: 'u_001',
-  name: '이지민',
+  name: '사용자이름',
   jobRole: '개발자',
 };
 
