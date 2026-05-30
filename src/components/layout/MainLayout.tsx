@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 export default function MainLayout() {
   return (
     <div className="flex min-h-screen justify-center">
-      <div className="grid w-[1440px] min-h-screen grid-cols-[240px_1200px] bg-app-bg">
+      <div className="grid min-h-screen w-[1440px] grid-cols-[276px_1fr] bg-app-bg">
         <Sidebar />
         <main className="p-10">
           <Outlet />
