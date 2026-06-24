@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useBookmarkStore } from '@/stores/bookmarkStore';
 import { mockJobs } from '@/data/mockJobs';
 import ScrapTable from '@/components/scrap/ScrapTable';
-import ScrapTabNavigation from '@/components/scrap/ScrapTabNavigation';
+//import ScrapTabNavigation from '@/components/scrap/ScrapTabNavigation';
 
 type TabType = 'all' | 'ongoing' | 'deadline';
 
@@ -91,9 +91,9 @@ export default function ScrapPage() {
           관심 있는 공고를 저장하고 한눈에 확인해보세요.
         </p>
       </div>
-
+      {/*
       <ScrapTabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-
+      */}
       <div className="h-6" />
 
       <ScrapTable

@@ -6,10 +6,17 @@ import ScrapPage from '@/pages/ScrapPage';
 import ApplicationStatusPage from '@/pages/ApplicationStatusPage';
 import MyPage from '@/pages/MyPage';
 import PlaceholderPage from './pages/PlaceholderPage';
+import OnboardingPage from '@/pages/Onboarding/OnboardingPage';
+import { useOnboardingGate } from '@/hooks/useOnboardingGate';
 
 export default function App() {
+  useOnboardingGate();
+
   return (
     <Routes>
+      {/* 온보딩은 사이드바/탑바 없는 전체화면 — MainLayout 밖에 둔다. */}
+      <Route path="/onboarding" element={<OnboardingPage />} />
+
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
