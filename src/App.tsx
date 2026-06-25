@@ -10,7 +10,9 @@ import OnboardingPage from '@/pages/Onboarding/OnboardingPage';
 import { useOnboardingGate } from '@/hooks/useOnboardingGate';
 
 export default function App() {
-  useOnboardingGate();
+  // 게이트는 라우트 최상단에서 1회 평가한다. (본 화면 내부에 두면 이미 홈이
+  // 렌더된 뒤라 리다이렉트 타이밍을 놓친다.)
+  const { needsOnboarding } = useOnboardingGate();
 
   return (
     <Routes>
@@ -18,7 +20,16 @@ export default function App() {
       <Route path="/onboarding" element={<OnboardingPage />} />
 
       <Route element={<MainLayout />}>
-        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/"
+          element={
+            needsOnboarding ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <HomePage />
+            )
+          }
+        />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
 
         {/* // 추가해야함 라우트 */}

@@ -1,10 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createCondition, CreateConditionRequest } from '@/api/conditions';
-import { OnboardingState, ONBOARDED_STORAGE_KEY } from '@/pages/Onboarding/types';
+import { OnboardingState } from '@/pages/Onboarding/types';
+import { useOnboardingStore } from '@/stores/onboardingStore';
 
 export function useSubmitOnboarding() {
   const navigate = useNavigate();
+  const complete = useOnboardingStore((s) => s.complete);
   return useMutation({
     mutationFn: (s: OnboardingState) => {
       const payload: CreateConditionRequest = {
@@ -21,8 +23,9 @@ export function useSubmitOnboarding() {
       return createCondition(payload);
     },
     onSuccess: () => {
-      // 실제 onboarded 플래그/엔드포인트 도입 전까지의 임시 게이트.
-      localStorage.setItem(ONBOARDED_STORAGE_KEY, 'true');
+      // 완료 표시는 스토어 complete() 단일 진입점으로. (localStorage 영속화 +
+      // React 상태 갱신이 함께 일어나므로 navigate 시점에 게이트가 새 값을 본다.)
+      complete();
       navigate('/', { replace: true });
     },
   });

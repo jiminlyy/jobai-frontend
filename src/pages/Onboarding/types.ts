@@ -48,6 +48,3 @@ export const INITIAL_ONBOARDING: OnboardingState = {
   discordWebhook: null,
   scoreThreshold: 70,
 };
-
-// 온보딩 완료 여부를 저장하는 localStorage 키 (실제 onboarded 플래그 도입 전 임시 게이트)
-export const ONBOARDED_STORAGE_KEY = 'jobai.onboarded';
