@@ -19,17 +19,16 @@ export default function TopBar() {
 
   return (
     <div className="mb-8 flex items-center gap-5">
-      <div className="relative h-[48px] w-[716px]">
-        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base text-app-text-subtle">
-          ⌕
-        </span>
+      {/* 테두리·배경은 컨테이너가, input은 투명하게 안에서 늘어남. 아이콘은 오른쪽. */}
+      <div className="flex h-12 w-full max-w-[716px] items-center gap-2 rounded-[10px] border border-app-border bg-app-surface px-6">
         <input
           type="text"
           value={q}
           onChange={handleSearchChange}
-          placeholder="검색어를 입력하세요"
-          className="h-full w-full rounded-[10px] border border-app-border bg-app-surface px-4 pl-10 text-sm text-app-text outline-none transition-colors placeholder:text-app-text-subtle focus:border-app-border-strong"
+          placeholder="공고명, 회사명, 기술 스택으로 검색해 보세요"
+          className="flex-1 bg-transparent text-sm text-app-text outline-none placeholder:text-app-text-subtle"
         />
+        <img src="/A22.svg" alt="검색" className="h-5 w-5 shrink-0" />
       </div>
     </div>
   );

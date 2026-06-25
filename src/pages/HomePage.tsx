@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useInfiniteJobs } from '@/hooks/useInfiniteJobs';
+import { useConditionStore } from '@/stores/conditionStore';
 import { parseCompanyType } from '@/types/job';
 import WelcomeCard from '@/components/home/WelcomeCard';
 import DeadlineCard, { type DeadlineItem } from '@/components/home/DeadlineCard';
@@ -31,7 +32,13 @@ export default function HomePage() {
   const q = searchParams.get('q')?.trim() ?? '';
   const isSearching = q.length > 0;
 
-  const { data, isLoading, isError } = useInfiniteJobs({ companyType, q });
+  // 검색 중에는 개인 맞춤 조건을 끄고 검색 결과를 우선한다.
+  const condition = useConditionStore((s) => s.condition);
+  const { data, isLoading, isError } = useInfiniteJobs({
+    companyType,
+    q,
+    condition: isSearching ? null : condition,
+  });
   const jobs = data?.pages.flatMap((page) => page.jobs) ?? [];
 
   const deadlineItems = useMemo<DeadlineItem[]>(
