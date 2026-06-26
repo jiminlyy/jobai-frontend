@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBookmarkStore } from '@/stores/bookmarkStore';
 import { mockJobs } from '@/data/mockJobs';
 import ScrapTable from '@/components/scrap/ScrapTable';
+import EmptyScrap from '@/components/common/EmptyScrap';
 //import ScrapTabNavigation from '@/components/scrap/ScrapTabNavigation';
 
 type TabType = 'all' | 'ongoing' | 'deadline';
@@ -13,6 +15,7 @@ const formatDeadline = (dday: number): string => {
 };
 
 export default function ScrapPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,15 +99,19 @@ export default function ScrapPage() {
       */}
       <div className="h-6" />
 
-      <ScrapTable
-        data={paginatedData}
-        selectedItems={selectedItems}
-        onSelectAll={handleSelectAll}
-        onSelectItem={handleSelectItem}
-        onRemove={handleRemove}
-        allSelected={paginatedData.length > 0 && paginatedData.every((item) => selectedItems.includes(item.id))}
-        onSortToggle={handleSortToggle}
-      />
+      {bookmarkedJobs.length === 0 ? (
+        <EmptyScrap onAction={() => navigate('/')} className="py-20" />
+      ) : (
+        <ScrapTable
+          data={paginatedData}
+          selectedItems={selectedItems}
+          onSelectAll={handleSelectAll}
+          onSelectItem={handleSelectItem}
+          onRemove={handleRemove}
+          allSelected={paginatedData.length > 0 && paginatedData.every((item) => selectedItems.includes(item.id))}
+          onSortToggle={handleSortToggle}
+        />
+      )}
 
       {filteredData.length > 0 && (
         <div className="flex items-center justify-center gap-2 mt-8">

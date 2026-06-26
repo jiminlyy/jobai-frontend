@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useInfiniteJobs } from '@/hooks/useInfiniteJobs';
 import { useConditionStore } from '@/stores/conditionStore';
+import { useBookmarkStore } from '@/stores/bookmarkStore';
 import { parseCompanyType } from '@/types/job';
 import WelcomeCard from '@/components/home/WelcomeCard';
 import DeadlineCard, { type DeadlineItem } from '@/components/home/DeadlineCard';
@@ -41,9 +42,13 @@ export default function HomePage() {
   });
   const jobs = data?.pages.flatMap((page) => page.jobs) ?? [];
 
+  // "곧 마감되는 스크랩 공고" 카드는 실제 스크랩(북마크)된 공고만 노출한다.
+  // TODO(API 연동): 북마크 store 대신 실제 스크랩 목록 API로 교체.
+  const bookmarkedIds = useBookmarkStore((s) => s.bookmarkedIds);
   const deadlineItems = useMemo<DeadlineItem[]>(
     () =>
-      [...mockJobs]
+      mockJobs
+        .filter((j) => bookmarkedIds.has(j.id))
         .sort((a, b) => a.dday - b.dday)
         .slice(0, 3)
         .map((j) => ({
@@ -53,7 +58,7 @@ export default function HomePage() {
           dDay: j.dday,
           expiresAt: formatExpiresAt(j.dday),
         })),
-    []
+    [bookmarkedIds]
   );
 
   const trendingItems = useMemo<TrendingScrapItem[]>(
@@ -85,7 +90,7 @@ export default function HomePage() {
       )}
 
       {!isSearching && (
-        <div className="mb-4 flex items-center gap-2">
+        <div id="recommended-jobs" className="mb-4 flex scroll-mt-6 items-center gap-2">
           <div className="text-base font-bold text-app-text">✨ 나에게 딱 맞는 공고</div>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import timeIcon from '/mingcute_time-fill.svg';
+import EmptyScrap from '@/components/common/EmptyScrap';
 
 export interface DeadlineItem {
   id: string;
@@ -15,6 +16,13 @@ interface DeadlineCardProps {
 
 export default function DeadlineCard({ jobs }: DeadlineCardProps) {
   const navigate = useNavigate();
+
+  // 빈 상태 버튼: 같은 홈 화면의 "딱 맞는 공고" 섹션으로 부드럽게 스크롤
+  const handleGoToScrap = () => {
+    document
+      .getElementById('recommended-jobs')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="flex h-[306px] flex-col rounded-xl border border-app-primary-soft bg-card-gradient px-5 py-4 shadow-[0_10px_28px_rgba(71,65,255,0.14)]">
@@ -32,6 +40,9 @@ export default function DeadlineCard({ jobs }: DeadlineCardProps) {
         </span>
       </button>
 
+      {jobs.length === 0 ? (
+        <EmptyScrap onAction={handleGoToScrap} className="flex-1" />
+      ) : (
       <ul className="flex flex-col">
         {jobs.map((job, index) => (
           <li
@@ -58,6 +69,7 @@ export default function DeadlineCard({ jobs }: DeadlineCardProps) {
           </li>
         ))}
       </ul>
+      )}
     </div>
   );
 }
