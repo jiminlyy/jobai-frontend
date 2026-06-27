@@ -3,11 +3,10 @@ import { useState } from 'react';
 interface EditableFieldProps {
   value: string;
   onSave: (value: string) => void;
-  label: string;
   iconSrc: string;
 }
 
-export default function EditableField({ value, onSave, label, iconSrc }: EditableFieldProps) {
+export default function EditableField({ value, onSave, iconSrc }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
 

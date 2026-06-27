@@ -45,7 +45,7 @@ export default function ProfileSection({
                 <div className="text-xs text-app-text-muted min-w-12">이름</div>
                 <div className="flex items-center gap-0">
                   <div className="text-sm font-medium text-app-text">{user.name}</div>
-                  <EditableField value={user.name} onSave={onNameChange} label="이름" iconSrc="/edit-icon.png" />
+                  <EditableField value={user.name} onSave={onNameChange} iconSrc="/edit-icon.png" />
                 </div>
               </div>
             </div>
