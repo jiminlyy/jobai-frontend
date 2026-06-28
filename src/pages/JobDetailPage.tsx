@@ -7,7 +7,7 @@ import JobInfo from '@/components/job_detail/JobInfo';
 import TabNavigation from '@/components/job_detail/TabNavigation';
 import ScoreBox from '@/components/job_detail/ScoreBox';
 import DetailContent from '@/components/job_detail/DetailContent';
-import ApplyContent from '@/components/job_detail/ApplyContent';
+import RequirementTab from '@/components/job_detail/RequirementTab';
 
 type TabType = 'detail' | 'qualification';
 
@@ -22,7 +22,7 @@ export default function JobDetailPage() {
     return activeTab === 'detail' ? (
       <DetailContent job={job} />
     ) : (
-      <ApplyContent job={job} />
+      <RequirementTab />
     );
   }, [activeTab, job]);
 

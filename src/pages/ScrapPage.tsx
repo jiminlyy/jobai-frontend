@@ -16,7 +16,8 @@ const formatDeadline = (dday: number): string => {
 
 export default function ScrapPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabType>('all');
+  // ScrapTabNavigation 활성화 시 setter를 다시 추가한다.
+  const [activeTab] = useState<TabType>('all');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortAsc, setSortAsc] = useState(true);
