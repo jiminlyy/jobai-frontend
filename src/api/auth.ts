@@ -18,10 +18,20 @@ interface GoogleLoginUrlResult {
 export async function getGoogleLoginUrl(): Promise<string> {
   const { data } = await apiClient.get<ApiEnvelope<GoogleLoginUrlResult>>(
     '/api/v1/auth/login/google',
+    {
+      withCredentials: false,
+      headers: {
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+      },
+      params: {
+        t: Date.now(),
+      },
+    },
   );
+
   return data.result.googleLoginUrl;
 }
-
 // 2-2. 내 정보 조회 — 200이면 로그인 상태, 401이면 미로그인(throw)
 export async function getMe(): Promise<AuthUser> {
   const { data } = await apiClient.get<ApiEnvelope<AuthUser>>('/api/v1/auth/me');
