@@ -48,7 +48,7 @@ export default function JobConditionsEditor({
           {temp.positions.map((pos) => (
             <span
               key={pos}
-              className="inline-block px-3 py-1 bg-app-primary text-white text-xs rounded-full flex items-center gap-2"
+              className="inline-flex px-3 py-1 bg-app-primary text-white text-xs rounded-full items-center gap-2"
             >
               {pos}
               <button
@@ -80,7 +80,7 @@ export default function JobConditionsEditor({
           {temp.locations.map((loc) => (
             <span
               key={loc}
-              className="inline-block px-3 py-1 bg-app-primary text-white text-xs rounded-full flex items-center gap-2"
+              className="inline-flex px-3 py-1 bg-app-primary text-white text-xs rounded-full items-center gap-2"
             >
               {loc}
               <button
@@ -112,7 +112,7 @@ export default function JobConditionsEditor({
           {temp.experiences.map((exp) => (
             <span
               key={exp}
-              className="inline-block px-3 py-1 bg-app-primary text-white text-xs rounded-full flex items-center gap-2"
+              className="inline-flex px-3 py-1 bg-app-primary text-white text-xs rounded-full items-center gap-2"
             >
               {exp}
               <button

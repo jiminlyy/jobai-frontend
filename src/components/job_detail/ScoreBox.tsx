@@ -20,7 +20,7 @@ function ScoreBox({ score }: ScoreBoxProps) {
                 <ScoreGauge2 score={score} />
             </div>
 
-            <div className="flex-1 space-y-2 text-[13px] font-medium text-slate-600 leading-relaxed leading-tight">
+            <div className="flex-1 space-y-2 text-[13px] font-medium text-slate-600 leading-tight">
                 <div className="flex items-start gap-1">
                   <span className="text-slate-400">·</span>
                   <span>기술 스택 Python, Django, AWS 일치 (매칭 3/5개)</span>
