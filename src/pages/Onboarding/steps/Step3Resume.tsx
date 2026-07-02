@@ -60,11 +60,13 @@ export default function Step3Resume({ state, dispatch }: StepProps) {
     state.resumeStatus === 'PENDING' || state.resumeStatus === 'DONE';
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="font-semibold text-app-text mb-1">이력서 업로드</h3>
-        <p className="text-xs text-app-text-muted">PDF 형식, 5MB 이하</p>
-      </div>
+    <div className="flex w-full flex-col gap-8 self-stretch">
+      {/* 헤더 — Title 1 (spec §1 #1/#2): 28/600/140%/-0.56px/gray-900 #171F29 */}
+      <h2 className="font-pretendard text-[28px] font-semibold leading-[140%] tracking-[-0.56px] text-[#171F29]">
+        맞춤 공고 추천을 위해
+        <br />
+        이력서를 업로드 해주세요.
+      </h2>
 
       <input
         ref={inputRef}
@@ -75,27 +77,29 @@ export default function Step3Resume({ state, dispatch }: StepProps) {
       />
 
       {isUploaded ? (
-        // 업로드 완료 상태
-        <div className="border border-app-border rounded-lg p-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📄</span>
-            <div>
-              <div className="text-sm font-medium text-app-text">
-                {state.resumeFileName}
-              </div>
-              <div className="text-xs text-app-text-muted">업로드 완료</div>
+        // 업로드 완료 항목 (spec §1 #8~#11): p12/20, gap24, radius12, bg blue-100 #EBECFF
+        <div className="flex items-center gap-6 self-stretch rounded-xl bg-blue-100 px-5 py-3">
+          <img src="/afterpdf.svg" alt="" aria-hidden className="h-10 w-10 shrink-0" />
+          <div className="flex min-w-0 flex-1 flex-col">
+            {/* 파일명 18px (#10) */}
+            <div className="truncate font-pretendard text-[18px] font-medium text-[#171F29]">
+              {state.resumeFileName}
+            </div>
+            {/* 날짜 14px (#10). TODO(백엔드 연동 필요): 업로드 날짜는 서버 응답값으로 교체 */}
+            <div className="font-pretendard text-sm text-[#687685]">
+              {new Date().toLocaleDateString('ko-KR')}
             </div>
           </div>
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-sm font-semibold text-app-primary hover:opacity-80"
+            className="shrink-0 font-pretendard text-sm font-semibold text-app-primary hover:opacity-80"
           >
             다시 업로드하기
           </button>
         </div>
       ) : (
-        // 드롭존
+        // 빈 드롭존 (spec §1 #3~#6): h226, p20/16, gap36, radius12, 2px dashed blue-500, bg 70%
         <div
           onClick={() => !isUploading && inputRef.current?.click()}
           onDragOver={(e) => {
@@ -104,17 +108,15 @@ export default function Step3Resume({ state, dispatch }: StepProps) {
           }}
           onDragLeave={() => setDragActive(false)}
           onDrop={onDrop}
-          className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-colors ${
-            dragActive
-              ? 'border-app-primary bg-app-bg'
-              : 'border-app-border hover:bg-app-bg'
+          className={`flex h-[226px] cursor-pointer flex-col items-center justify-center gap-9 self-stretch rounded-xl border-2 border-dashed border-blue-500 px-4 py-5 text-center transition-colors ${
+            dragActive ? 'bg-blue-100/60' : 'bg-white/70'
           }`}
         >
-          <div className="text-3xl mb-2">⬆️</div>
-          <p className="text-sm text-app-text">
-            {isUploading
-              ? '업로드 중...'
-              : '여기로 파일을 끌어다 놓거나 클릭하여 선택하세요'}
+          {/* 빈 드롭존 아이콘 — pdf.svg (시스템 이모지 금지, #4) */}
+          <img src="/pdf.svg" alt="" aria-hidden className="h-12 w-12" />
+          {/* 안내 텍스트 — PDF 업로드 (#5) */}
+          <p className="font-pretendard text-sm font-medium text-[#303D4C]">
+            {isUploading ? '업로드 중...' : 'PDF 업로드'}
           </p>
         </div>
       )}
