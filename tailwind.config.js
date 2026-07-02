@@ -35,6 +35,11 @@ export default {
           400: '#7682FF',
           500: '#4741FF',
         },
+        // Figma 핸드오프 토큰명(blue-*). purple-*와 값은 같으나 디자인 토큰명 일치용.
+        blue: {
+          100: '#EBECFF',
+          500: '#4741FF',
+        },
         gray: {
           50: '#F9FAFB',
           100: '#F2F4F6',
