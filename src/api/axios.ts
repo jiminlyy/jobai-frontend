@@ -26,7 +26,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 
-const API_BASE_URL =
+export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'https://api.jobai.site';
 
 export const apiClient = axios.create({

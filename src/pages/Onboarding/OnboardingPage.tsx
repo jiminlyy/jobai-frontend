@@ -17,6 +17,10 @@ export default function OnboardingPage() {
 
   const isLast = step === STEPS.length - 1;
 
+  // spec §7: 직무설정(step 1)에서는 팬 카드 선택 전까지 '다음으로' 비활성.
+  // 다른 단계 진행 로직은 미변경. '건너뛰기'는 선택 없이도 통과 허용.
+  const nextDisabled = step === 1 && state.jobRole === null;
+
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
@@ -75,7 +79,8 @@ export default function OnboardingPage() {
               <button
                 type="button"
                 onClick={next}
-                className="flex h-11 w-[103px] items-center justify-center gap-2.5 rounded-lg bg-[#4741FF] px-2.5 py-2 font-pretendard text-sm font-semibold text-white hover:opacity-90"
+                disabled={nextDisabled}
+                className="flex h-11 w-[103px] items-center justify-center gap-2.5 rounded-lg bg-[#4741FF] px-2.5 py-2 font-pretendard text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 다음으로 →
               </button>

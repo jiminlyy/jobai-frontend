@@ -28,6 +28,16 @@ export const REGION_OPTIONS = [
 ] as const;
 export type RegionCode = (typeof REGION_OPTIONS)[number];
 
+// step2 희망 직무 (온보딩 팬 카드 — spec §8). 사용자 노출 문자열은 한국어,
+// 코드 식별자는 영어. public/ 한글 파일명은 import 인코딩 이슈를 피해 절대경로 참조.
+export type Role = 'developer' | 'designer' | 'planner';
+
+export const ROLES: { key: Role; label: string; icon: string; bg: string }[] = [
+  { key: 'developer', label: '개발자', icon: '/개발자.png', bg: '/개발자배경.png' },
+  { key: 'designer', label: '디자이너', icon: '/디자이너.png', bg: '/디자이너배경.png' },
+  { key: 'planner', label: '기획자', icon: '/기획자.png', bg: '/기획자배경.png' },
+];
+
 // 이력서 업로드 상태
 export type ResumeStatus = 'IDLE' | 'UPLOADING' | 'PENDING' | 'DONE' | 'FAIL';
 
@@ -39,7 +49,10 @@ export interface OnboardingState {
   // TODO(백엔드 연동 필요): employmentType(채용형태) 제출 페이로드 매핑 —
   // BE 협의 전까지 프론트 상태로만 보관(useSubmitOnboarding 미연동).
   employmentType: EmploymentType;
-  // step2
+  // step2 — 팬 카드에서 선택한 단일 희망 직무 (미선택 시 null).
+  jobRole: Role | null;
+  // TODO(백엔드 연동 필요): jobRole → 제출 payload/conditions.keywords 매핑.
+  // BE 협의 전까지 jobTypes는 기존 파이프라인 호환용으로 유지(현재 미입력 → []).
   jobTypes: string[];
   // step3
   resumeId: string | null;
@@ -56,6 +69,7 @@ export const INITIAL_ONBOARDING: OnboardingState = {
   locations: [],
   experience: 'NEW',
   employmentType: 'NEWCOMER',
+  jobRole: null,
   jobTypes: [],
   resumeId: null,
   resumeFileName: null,

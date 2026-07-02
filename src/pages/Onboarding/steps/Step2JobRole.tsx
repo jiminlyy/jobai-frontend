@@ -1,5 +1,5 @@
-import { Dispatch, KeyboardEvent, useState } from 'react';
-import { OnboardingState } from '../types';
+import { Dispatch } from 'react';
+import { OnboardingState, ROLES, Role } from '../types';
 import { OnboardingAction } from '../onboardingReducer';
 
 interface StepProps {
@@ -7,100 +7,88 @@ interface StepProps {
   dispatch: Dispatch<OnboardingAction>;
 }
 
-// 와이어프레임 미확정 단계 (spec §2 주석). 직무 키워드 추천 + 자유 입력으로 구성.
-const SUGGESTED_JOB_TYPES = [
-  '프론트엔드 개발',
-  '백엔드 개발',
-  '풀스택 개발',
-  'DevOps',
-  '데이터 엔지니어',
-  'AI/ML 엔지니어',
-  '모바일 개발',
-];
+// 팬(부채꼴) 배치 근사 초기값 (spec §6/§7 — ⚠️ 육안 근사).
+// TODO(디자이너 확인 — spec §10.1~3): rotate/z-index/x 오프셋 정확값 교체.
+//   x  : 카드 중심의 좌우 오프셋(px). 카드 폭(≈318) 대비 겹치도록 설정.
+//   y  : 기본 세로 오프셋(px). 중앙 카드가 살짝 위로 올라와 앞에 온다.
+//   rot: 기본 회전(deg).  z: 기본 z-index(선택 시 3으로 덮어씀).
+const CARD_GEOMETRY: Record<Role, { x: number; y: number; rot: number; z: number }> = {
+  developer: { x: -120, y: 0, rot: -13, z: 1 },
+  designer: { x: 0, y: -14, rot: 0, z: 2 },
+  planner: { x: 120, y: 0, rot: 13, z: 1 },
+};
+
+// 선택 상태 강조 수치 (spec §7 — ⚠️ 근사, Figma 검증 필수 §10.3).
+const SELECTED_SCALE = 1.05;
+const SELECTED_LIFT = -8; // translateY(px)
+const UNSELECTED_OPACITY = 0.4;
 
 export default function Step2JobRole({ state, dispatch }: StepProps) {
-  const [input, setInput] = useState('');
+  const select = (role: Role) =>
+    dispatch({ type: 'SET_FIELD', key: 'jobRole', value: role });
 
-  const setJobTypes = (next: string[]) =>
-    dispatch({ type: 'SET_FIELD', key: 'jobTypes', value: next });
-
-  const addJobType = (value: string) => {
-    const trimmed = value.trim();
-    if (trimmed && !state.jobTypes.includes(trimmed)) {
-      setJobTypes([...state.jobTypes, trimmed]);
-    }
-    setInput('');
-  };
-
-  const removeJobType = (value: string) => {
-    setJobTypes(state.jobTypes.filter((j) => j !== value));
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addJobType(input);
-    }
-  };
+  const anySelected = state.jobRole !== null;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="font-semibold text-app-text mb-1">관심 직무</h3>
-        <p className="text-xs text-app-text-muted mb-4">
-          직무 키워드를 입력하거나 추천에서 선택하세요. (Enter로 추가)
-        </p>
+    <div className="flex flex-col items-start gap-8 self-stretch">
+      {/* 헤더 — Step1 메인 제목과 동일한 Title1 스타일 적용.
+          TODO(디자이너 확인 — spec §10.5): 헤더 폰트 크기/굵기 미확정(본문 14px과 다름). */}
+      <h2 className="font-pretendard text-[28px] font-semibold leading-[140%] tracking-[-0.56px] text-[#171F29]">
+        희망하는 직무를
+        <br />
+        선택해주세요.
+      </h2>
 
-        {/* 선택된 직무 칩 */}
-        {state.jobTypes.length > 0 && (
-          <div className="flex gap-2 flex-wrap mb-3">
-            {state.jobTypes.map((job) => (
-              <span
-                key={job}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-app-primary text-white text-xs rounded-full"
-              >
-                {job}
-                <button
-                  type="button"
-                  onClick={() => removeJobType(job)}
-                  className="hover:opacity-80"
-                  aria-label={`${job} 제거`}
-                >
-                  ×
-                </button>
+      {/* 팬 카드 컨테이너 — 겹침·회전 위해 relative + 카드 absolute. 카드가 부모
+          밖으로 넘치도록 overflow-visible (spec §3.2 음수 offset = 넘침). */}
+      <div className="relative h-[300px] w-full self-stretch overflow-visible">
+        {ROLES.map((role) => {
+          const isSelected = state.jobRole === role.key;
+          const geom = CARD_GEOMETRY[role.key];
+          const y = geom.y + (isSelected ? SELECTED_LIFT : 0);
+          const scale = isSelected ? SELECTED_SCALE : 1;
+
+          // 회전을 유지하면서 중앙 정렬(-50%,-50%) + 오프셋 + 확대·상승 합성 (spec §7 권장).
+          const transform =
+            `translate(calc(-50% + ${geom.x}px), calc(-50% + ${y}px)) ` +
+            `rotate(${geom.rot}deg) scale(${scale})`;
+
+          return (
+            <button
+              key={role.key}
+              type="button"
+              aria-pressed={isSelected}
+              aria-label={`${role.label} 선택`}
+              onClick={() => select(role.key)}
+              className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center bg-contain bg-center bg-no-repeat transition-[transform,opacity] duration-200 ease-out"
+              style={{
+                // spec §3.1 확정 크기 (팬 배치라 px 고정 — 그리드 카드 아님).
+                width: '317.84px',
+                height: '213.287px',
+                aspectRatio: '76 / 51',
+                transform,
+                // 선택 없으면 전부 불투명. 선택 시 선택 카드만 불투명, 나머지는 흐릿.
+                opacity: anySelected && !isSelected ? UNSELECTED_OPACITY : 1,
+                zIndex: isSelected ? 3 : geom.z,
+                // 배경 = 카드 배경 PNG (한글 파일명 절대경로, spec §2). 전경 아이콘은
+                // 아래 <img>로 오버레이 (배경/전경 합성 방식은 spec §10.7 확인 필요).
+                backgroundImage: `url("${role.bg}")`,
+              }}
+            >
+              <img
+                src={role.icon}
+                alt=""
+                aria-hidden
+                className="pointer-events-none h-[112px] w-[112px] object-contain"
+              />
+              {/* 라벨: 배경/전경 PNG에 텍스트가 없어 오버레이로 렌더.
+                  TODO(디자이너 확인 §10.7): 라벨 위치/색상. 보라 배경 대비 흰색 잠정. */}
+              <span className="pointer-events-none mt-1 font-pretendard text-sm font-medium leading-[150%] tracking-[-0.28px] text-white">
+                {role.label}
               </span>
-            ))}
-          </div>
-        )}
-
-        {/* 자유 입력 */}
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="예: 프론트엔드 개발"
-          className="w-full px-4 py-2 border border-app-border rounded-lg text-sm text-app-text focus:outline-none focus:ring-1 focus:ring-app-primary"
-        />
-      </div>
-
-      {/* 추천 직무 */}
-      <div>
-        <div className="text-xs text-app-text-muted mb-3">추천 직무</div>
-        <div className="flex gap-2 flex-wrap">
-          {SUGGESTED_JOB_TYPES.filter((j) => !state.jobTypes.includes(j)).map(
-            (job) => (
-              <button
-                key={job}
-                type="button"
-                onClick={() => addJobType(job)}
-                className="px-3 py-1 border border-app-border rounded text-xs text-app-text hover:bg-app-bg"
-              >
-                + {job}
-              </button>
-            ),
-          )}
-        </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
