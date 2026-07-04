@@ -1,30 +1,15 @@
 import { useParams } from 'react-router-dom';
-import { useState, useMemo } from 'react';
 import { useJobDetail } from '@/hooks/useJobDetail';
 import BackButton from '@/components/common/BackButton';
 import BookmarkButton from '@/components/common/BookmarkButton';
 import JobInfo from '@/components/job_detail/JobInfo';
-import TabNavigation from '@/components/job_detail/TabNavigation';
 import ScoreBox from '@/components/job_detail/ScoreBox';
 import DetailContent from '@/components/job_detail/DetailContent';
-import RequirementTab from '@/components/job_detail/RequirementTab';
-
-type TabType = 'detail' | 'qualification';
+import AiSummaryCard from '@/components/job_detail/AiSummaryCard';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: job, isLoading, isError, error } = useJobDetail(id);
-  const [activeTab, setActiveTab] = useState<TabType>('detail');
-
-  const tabContent = useMemo(() => {
-    if (!job) return null;
-
-    return activeTab === 'detail' ? (
-      <DetailContent job={job} />
-    ) : (
-      <RequirementTab />
-    );
-  }, [activeTab, job]);
 
   if (isLoading) {
     return (
@@ -101,12 +86,14 @@ export default function JobDetailPage() {
               <JobInfo job={job} />
             </div>
 
-            <div className="mt-6">
-              <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+            {/* AI 공고 요약 카드 — 스킬 영역과 52px 간격(⚠️ 추정, spec §B). */}
+            <div className="mt-[52px]">
+              <AiSummaryCard />
             </div>
 
+            {/* 원문 본문(상세내용) — 탭 제거로 meta/스킬 아래에 바로 렌더(spec §A). */}
             <div className="w-full py-6">
-              {tabContent}
+              <DetailContent job={job} />
             </div>
           </div>
 
