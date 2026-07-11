@@ -84,7 +84,7 @@ export default function WelcomeCard() {
           TODO(확인 필요): mingcute:pencil-fill 도입 여부 및 아이콘 흰색 여부. */}
       <button
         type="button"
-        onClick={() => navigate('/resumes')}
+        onClick={() => navigate('/profile')}
         className="relative z-10 inline-flex items-center gap-2.5 self-start rounded-2xl bg-white/10 py-2.5 pl-6 pr-7 font-pretendard text-[14px] font-medium leading-[150%] tracking-[-0.28px] text-white transition hover:bg-white/20"
       >
         <img src="/edit-icon.png" alt="" aria-hidden className="h-6 w-6" />
