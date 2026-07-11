@@ -18,12 +18,6 @@ interface UserProfile {
     locations: string[];
     experiences: string[];
   };
-  resumes: Array<{
-    id: string;
-    name: string;
-    date: string;
-    status: 'primary' | 'secondary';
-  }>;
 }
 
 const MOCK_USER: UserProfile = {
@@ -34,20 +28,6 @@ const MOCK_USER: UserProfile = {
     locations: ['서울 강남', '부산'],
     experiences: ['신입'],
   },
-  resumes: [
-    {
-      id: '1',
-      name: '김주은_이력서_20260606.pdf',
-      date: '2026.06.06',
-      status: 'primary',
-    },
-    {
-      id: '2',
-      name: '김주은_이력서_20260601.pdf',
-      date: '2026.06.01',
-      status: 'secondary',
-    },
-  ],
 };
 
 export default function MyPage() {
@@ -75,20 +55,10 @@ export default function MyPage() {
     );
   };
 
-  const handleSetPrimaryResume = (id: string) => {
-    setUser({
-      ...user,
-      resumes: user.resumes.map((resume) => ({
-        ...resume,
-        status: resume.id === id ? (resume.status === 'primary' ? 'secondary' : 'primary') : 'secondary',
-      })),
-    });
-  };
-
   return (
     <div className="pt-12">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-app-text mb-1">마이페이지</h1>
+        <h1 className="text-3xl font-bold text-app-text mb-1">마이페이지</h1>
       </div>
 
       <MyPageTabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
@@ -98,7 +68,6 @@ export default function MyPage() {
           user={{ ...user, jobConditions }}
           onNameChange={handleNameChange}
           onJobConditionsChange={handleJobConditionsChange}
-          onSetPrimaryResume={handleSetPrimaryResume}
         />
       ) : (
         <NotificationSettings />
