@@ -55,7 +55,8 @@ export default function DeadlineCard({ jobs }: DeadlineCardProps) {
           >
             <button
               type="button"
-              onClick={() => navigate(`/jobs/${job.id}`)}
+              // TODO(실데이터): 스크랩 API 연동 시 상세 이동 복구. 지금은 mockJobs 기반이라
+              // source 가 없고 mock id 가 실제 API id 와 안 맞아 엉뚱한 상세가 뜰 위험 → 비활성.
               className="flex w-full items-start justify-between gap-2 px-2 py-3 text-left transition hover:bg-white/50"
             >
               <div className="min-w-0 flex-1">

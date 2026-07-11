@@ -96,7 +96,7 @@ export default function JobCard({ job, masked = false }: JobCardProps) {
   }
 
   return (
-    <Link to={`/jobs/${jobId}`} className={CARD_CLASS}>
+    <Link to={`/jobs/${job.source}/${jobId}`} className={CARD_CLASS}>
       {inner}
     </Link>
   );
