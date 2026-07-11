@@ -3,6 +3,7 @@ import { useJobDetail } from '@/hooks/useJobDetail';
 import BackButton from '@/components/common/BackButton';
 import BookmarkButton from '@/components/common/BookmarkButton';
 import JobInfo from '@/components/job_detail/JobInfo';
+import JobSummarySection from '@/components/job_detail/JobSummarySection';
 import DetailContent from '@/components/job_detail/DetailContent';
 import type { CompanyType } from '@/types/job';
 
@@ -98,6 +99,13 @@ export default function JobDetailPage() {
           </div>
 
           <JobInfo job={job} />
+
+          {/* AI 요약(온디맨드) — 사기업 전용. 본문과 독립(버튼 클릭 전 호출 없음). */}
+          {job.source === 'PRIVATE' && (
+            <div className="mt-[52px]">
+              <JobSummarySection jobId={job.id} />
+            </div>
+          )}
 
           {/* 원문 본문 — content(디코드+sanitize) */}
           <div className="w-full py-6">
