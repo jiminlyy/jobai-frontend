@@ -42,7 +42,8 @@ export interface RawPrivateJobDetail {
   deadline: string | null;
   applyUrl: string | null;
   jobCategory: string | null;
-  summary: string | null; // LLM 요약(캐시 없으면 null)
+  // summary 제거: 본문 API(private-jobs/{id}) 응답엔 summary 필드 없음(③ 라이브 확정).
+  // LLM 요약은 별도 엔드포인트(/summary)에서 useJobSummary 로 독립 조회한다(④).
   createdAt: string;
 }
 
@@ -82,8 +83,17 @@ interface JobDetailBase {
 export interface PrivateJobDetail extends JobDetailBase {
   source: 'PRIVATE';
   jobCategory: string | null;
-  summary: string | null;
+  // summary 는 본문 타입에서 분리 — 별도 /summary 엔드포인트(useJobSummary)로 조회(④).
   createdAt: string;
+}
+
+// LLM 온디맨드 요약 (GET /api/v1/private-jobs/{id}/summary 의 result.summary).
+// 사기업 전용. 4개 배열 — 빈 배열이면 소비 측에서 해당 그룹 숨김.
+export interface JobLlmSummary {
+  techStack: string[];
+  responsibilities: string[];
+  qualifications: string[];
+  preferredQualifications: string[];
 }
 
 export interface PublicJobDetail extends JobDetailBase {

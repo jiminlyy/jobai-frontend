@@ -39,7 +39,7 @@ export const normalizePrivateJobDetail = (
   deadline: raw.deadline,
   applyUrl: raw.applyUrl,
   jobCategory: raw.jobCategory,
-  summary: raw.summary,
+  // summary 는 본문 응답에 없음 → /summary 엔드포인트(useJobSummary)에서 별도 조회(④).
   createdAt: raw.createdAt,
 });
 
