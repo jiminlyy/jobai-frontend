@@ -155,7 +155,7 @@ export default function GuestHome() {
         </div>
 
         {/* §5(3-B) 곧 마감되는 스크랩 공고 — 게스트 빈 상태 */}
-        <div className="flex h-[306px] w-[302px] flex-col gap-5 rounded-2xl border border-blue-100 bg-guest-radial p-5 shadow-homecard">
+        <div className="flex h-[306px] w-[302px] flex-col gap-5 rounded-2xl border border-blue-100 bg-card-radial p-5 shadow-homecard">
           {/* 3B-3 헤더 */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -186,7 +186,7 @@ export default function GuestHome() {
         </div>
 
         {/* §6(3-C) IT 한눈에 */}
-        <div className="flex h-[306px] w-[302px] flex-col gap-5 rounded-2xl border border-blue-100 bg-guest-radial p-5 shadow-homecard">
+        <div className="flex h-[306px] w-[302px] flex-col gap-5 rounded-2xl border border-blue-100 bg-card-radial p-5 shadow-homecard">
           {/* 3C-2 헤더 — gap-12, news 아이콘 24, 18 SemiBold/-0.36px/black */}
           <div className="flex items-center gap-3">
             <img src="/iconamoon_news-fill.svg" alt="" aria-hidden className="h-6 w-6 flex-shrink-0" />
