@@ -50,7 +50,13 @@ export default function HomePage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // 기본 목록(비검색) → recommended-jobs API. 개인화(희망직무/지역)는 서버가 처리.
-  const filters = { companyTypes: companyType ? [companyType] : undefined };
+  const locations = searchParams.getAll('location');
+  const employmentTypes = searchParams.getAll('employmentType');
+  const filters = {
+    companyTypes: companyType ? [companyType] : undefined,
+    locations: locations.length ? locations : undefined,
+    employmentTypes: employmentTypes.length ? employmentTypes : undefined,
+  };
   const recommended = useRecommendedJobs(filters, isAuthenticated && !isSearching);
 
   // 검색(q) 경로는 별도 명세 범위 밖 → 기존 mock 훅을 임시 유지(q 없을 땐 결과 미사용).
