@@ -22,6 +22,19 @@ import TopBar from '@/components/layout/TopBar';
 
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
+// 섹션 타이틀용 ai 아이콘 (size-24, §6 E). mingcute:ai-fill 근사.
+function AiIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
+      <path
+        fill="currentColor"
+        d="M12 2.5c.4 0 .74.27.85.65l.9 3.14a4 4 0 0 0 2.76 2.76l3.14.9a.9.9 0 0 1 0 1.72l-3.14.9a4 4 0 0 0-2.76 2.76l-.9 3.14a.9.9 0 0 1-1.72 0l-.9-3.14a4 4 0 0 0-2.76-2.76l-3.14-.9a.9.9 0 0 1 0-1.72l3.14-.9a4 4 0 0 0 2.76-2.76l.9-3.14A.9.9 0 0 1 12 2.5Z"
+      />
+      <path fill="currentColor" d="M19 3.5c.16 0 .3.1.35.26l.38 1.25 1.25.38a.37.37 0 0 1 0 .7l-1.25.38-.38 1.25a.37.37 0 0 1-.7 0l-.38-1.25-1.25-.38a.37.37 0 0 1 0-.7l1.25-.38.38-1.25A.37.37 0 0 1 19 3.5Z" />
+    </svg>
+  );
+}
+
 function formatExpiresAt(dday: number): string {
   const target = new Date();
   target.setDate(target.getDate() + dday);
@@ -48,9 +61,17 @@ export default function HomePage() {
   const q = searchParams.get('q')?.trim() ?? '';
   const isSearching = q.length > 0;
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  // 섹션 개인화 이름 — 히어로 인사말과 동일 소스(authStore.user.name) 재사용(§9-2).
+  const name = useAuthStore((s) => s.user?.name);
 
   // 기본 목록(비검색) → recommended-jobs API. 개인화(희망직무/지역)는 서버가 처리.
-  const filters = { companyTypes: companyType ? [companyType] : undefined };
+  const locations = searchParams.getAll('location');
+  const employmentTypes = searchParams.getAll('employmentType');
+  const filters = {
+    companyTypes: companyType ? [companyType] : undefined,
+    locations: locations.length ? locations : undefined,
+    employmentTypes: employmentTypes.length ? employmentTypes : undefined,
+  };
   const recommended = useRecommendedJobs(filters, isAuthenticated && !isSearching);
 
   // 검색(q) 경로는 별도 명세 범위 밖 → 기존 mock 훅을 임시 유지(q 없을 땐 결과 미사용).
@@ -107,17 +128,22 @@ export default function HomePage() {
       
       {!isSearching && <TrendingScrap items={trendingItems} />}
 
+      {/* A. 히어로(440) + 카드 2개(302×306) — flex gap-20 items-center (bg-gray-50·패딩은 MainLayout) */}
       {!isSearching && (
-        <section className="mb-9 grid grid-cols-[1fr_348px_256px] gap-[20px]">
+        <section className="mb-9 flex items-center gap-5">
           <WelcomeCard />
           <DeadlineCard jobs={deadlineItems} />
           <AINewsCard news={mockAINews} />
         </section>
       )}
 
+      {/* E. 섹션 타이틀 — ai아이콘24 + 20 SemiBold/-0.4px, 개인화 이름 */}
       {!isSearching && (
-        <div id="recommended-jobs" className="mb-4 flex scroll-mt-6 items-center gap-2">
-          <div className="text-base font-bold text-app-text">✨ 나에게 딱 맞는 공고</div>
+        <div id="recommended-jobs" className="mb-4 flex scroll-mt-6 items-center gap-3">
+          <AiIcon className="h-6 w-6 flex-shrink-0 text-app-primary" />
+          <h2 className="font-pretendard text-[20px] font-semibold leading-[140%] tracking-[-0.4px] text-black">
+            {name ?? '회원'} 님에게 딱 맞는 공고
+          </h2>
         </div>
       )}
 

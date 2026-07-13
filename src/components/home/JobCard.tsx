@@ -10,15 +10,16 @@ interface JobCardProps {
   masked?: boolean;
 }
 
+// GC-1: rounded-[14px], gap-8, border-blue-100, shadow-guestcard.
 const CARD_CLASS =
-  'relative flex h-full flex-col items-start gap-[16px] self-stretch rounded-2xl border border-app-border bg-app-surface px-[24px] py-[20px] text-left transition-all hover:border-app-border-strong hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-app-border-strong';
+  'relative flex h-full flex-col items-start gap-[8px] self-stretch rounded-[14px] border border-blue-100 bg-app-surface px-[24px] py-[20px] text-left shadow-guestcard transition-all hover:shadow-guestcard focus:outline-none focus:ring-2 focus:ring-app-border-strong';
 
 // 마스킹 카드 호버 시 노출되는 툴팁 (spec §4.4). 아래 방향 화살표로 점수를 가리킨다.
 function GuestScoreTooltip() {
   const navigate = useNavigate();
   return (
     <div className="pointer-events-none absolute left-0 top-[-64px] z-20 flex opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
-      <div className="relative inline-flex flex-col items-center justify-center rounded-lg border border-gray-800 bg-gray-800 px-4 py-3 shadow-[0_6px_12px_0_rgba(0,0,0,0.20)]">
+      <div className="relative inline-flex flex-col items-center justify-center rounded-base border border-gray-800 bg-gray-800 px-4 py-3 shadow-[0_6px_12px_0_rgba(0,0,0,0.20)]">
         <span className="text-center font-pretendard text-[12px] font-normal leading-[130%] tracking-[-0.24px] text-white">
           로그인하면 점수를 확인할 수 있어요
         </span>
@@ -47,41 +48,62 @@ export default function JobCard({ job, masked = false }: JobCardProps) {
         <BookmarkButton jobId={jobId} className="absolute right-[24px] top-[20px]" />
       )}
 
-      <div className="w-full">
-        <div className="relative mb-[8px] flex items-start">
-          {noScore ? (
-            // 점수 없음 → 블러 플레이스홀더. ScoreGauge 에 null/0 을 전달하지 않는다.
-            // 게스트일 때만 로그인 유도 툴팁을 함께 노출.
-            <div className="relative h-14 w-20 flex-shrink-0">
-              <div
-                aria-hidden
-                className="pointer-events-none h-full w-full select-none rounded-md bg-gray-100 blur-[6px]"
+      {/* GC-2 상단 행 — 점수 그룹(북마크는 masked 시 숨김·absolute) */}
+      <div className="flex w-full items-start justify-between">
+        {noScore ? (
+          // 점수 없음 → 블러 게이지 플레이스홀더(GC-3). 게이지 그룹 93×47.84 근사 +
+          // "??" 24 SemiBold + "점" 16 Regular. 게스트일 때만 로그인 유도 툴팁 노출.
+          <div className="relative h-12 w-[93px] flex-shrink-0">
+            <svg viewBox="0 0 93 48" aria-hidden className="h-full w-full blur-[3px]">
+              <defs>
+                <linearGradient id="guest-gauge" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#A78BFA" />
+                  <stop offset="100%" stopColor="#7C3AED" />
+                </linearGradient>
+              </defs>
+              <path d="M 8 44 A 38 38 0 0 1 85 44" fill="none" stroke="#E6E8EB" strokeWidth="6" strokeLinecap="round" />
+              <path
+                d="M 8 44 A 38 38 0 0 1 85 44"
+                fill="none"
+                stroke="url(#guest-gauge)"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeDasharray="120"
+                strokeDashoffset="55"
               />
-              <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-app-text-muted">
-                ??점
-              </span>
-              {masked && <GuestScoreTooltip />}
+            </svg>
+            <div className="absolute inset-x-0 bottom-0 flex items-baseline justify-center">
+              <span className="text-[24px] font-semibold tracking-[-0.48px] text-gray-900">??</span>
+              <span className="ml-0.5 text-[16px] font-normal text-gray-900">점</span>
             </div>
-          ) : (
-            <ScoreGauge score={job.matchScore as number} variant="semicircle" />
-          )}
+            {masked && <GuestScoreTooltip />}
+          </div>
+        ) : (
+          <ScoreGauge score={job.matchScore as number} variant="semicircle" />
+        )}
+      </div>
+
+      {/* GC-5 본문 — flex-col gap-16 */}
+      <div className="flex w-full flex-col gap-4">
+        {/* GC-6 텍스트 블록 — gap-4 */}
+        <div className="flex flex-col gap-1">
+          {/* GC-7 공고명 — 18 Medium/150%/-0.36px/gray-900 */}
+          <h3 className="line-clamp-2 text-[18px] font-medium leading-[1.5] tracking-[-0.36px] text-gray-900">
+            {job.title}
+          </h3>
+          <div className="flex items-center gap-2">
+            {/* GC-8 회사명 — 14 Regular/gray-800 */}
+            <span className="truncate text-[14px] text-gray-800">{job.company}</span>
+            {/* GC-9 D-day — 텍스트만(배경필 제거), 14 Medium/error-base. dDay null = 상시모집 */}
+            <span className="flex-shrink-0 text-[14px] font-medium text-error-base">
+              {job.dDay === null ? '상시' : `D-${job.dDay}`}
+            </span>
+          </div>
         </div>
 
-        <h3 className="mb-[8px] line-clamp-2 min-h-[2.75rem] text-base font-bold leading-snug text-app-text">
-          {job.title}
-        </h3>
-
-        <div className="mb-[16px] flex items-center gap-[8px]">
-          <span className="truncate text-sm text-app-text-muted">{job.company}</span>
-          {/* dDay null = 상시모집 */}
-          <span className="flex-shrink-0 rounded-md bg-red-50 px-1.5 py-0.5 text-xs font-bold text-red-500">
-            {job.dDay === null ? '상시' : `D-${job.dDay}`}
-          </span>
-        </div>
-
-        {/* techStack 은 목록 API 응답에 없어(A4) 목록 카드에서는 표시하지 않는다.
-            (상세 API 에는 있을 수 있음 — 상세 연동 명세에서 처리) */}
-        <div className="flex flex-wrap items-center gap-[8px]">
+        {/* GC-10 배지 행(opacity-80). GC-11 techStack 배지는 목록 API 미제공으로 보류(§9-2) →
+            대신 location·employmentType 텍스트 유지. */}
+        <div className="flex flex-wrap items-center gap-[8px] opacity-80">
           <span className="truncate text-xs text-app-text-muted">
             {job.location} · {job.employmentType}
           </span>
