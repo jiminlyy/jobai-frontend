@@ -25,18 +25,19 @@ export default function WelcomeCard() {
   const hero = ROLE_HERO[(jobRole as HeroRole) ?? 'developer'] ?? ROLE_HERO.developer;
 
   return (
-    // 컨테이너 — w-440 h-306 rounded-16 overflow-clip + shadow-homecard, 배경 = 역할별 PNG.
-    <div
-      className="relative h-[306px] w-[440px] flex-shrink-0 overflow-clip rounded-2xl shadow-homecard"
-      style={{
-        backgroundImage: `url(${hero.background})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      {/* 콘텐츠 origin left-28 top-42, 내부 w-350, 타이틀↔버튼 gap-52 */}
-      <div className="absolute left-[28px] top-[42px] flex w-[350px] flex-col gap-[52px]">
+    // 컨테이너 — w-440 h-306 rounded-16, overflow-hidden(카드 형태로 클립), shadow-homecard.
+    <div className="relative h-[306px] w-[440px] flex-shrink-0 overflow-hidden rounded-2xl shadow-homecard">
+      {/* 배경 = 역할별 PNG. absolute inset-0 + object-cover 로 카드 전체를 여백 없이 덮는다
+          (full-bleed). 컨테이너의 overflow-hidden 이 둥근 모서리로 클립. */}
+      <img
+        src={hero.background}
+        alt=""
+        aria-hidden
+        draggable={false}
+        className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
+      />
+      {/* 콘텐츠 — 배경 위(z-10). origin left-28 top-42, 내부 w-350, 타이틀↔버튼 gap-52 */}
+      <div className="absolute left-[28px] top-[42px] z-10 flex w-[350px] flex-col gap-[52px]">
         <div className="flex flex-col gap-4">
           {/* 인사 2행 — PASS: 28/-0.56px/140%/#FFF, 1행 SemiBold(600) · 2행 Medium(500). */}
           <h2 className="text-white">
