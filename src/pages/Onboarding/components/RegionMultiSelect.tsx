@@ -38,7 +38,7 @@ export default function RegionMultiSelect({
   };
 
   return (
-    <div className="flex flex-col gap-2 self-stretch">
+    <div className="relative flex flex-col gap-2 self-stretch">
       {/* 드롭다운 트리거(A-2): 반투명 흰 배경 + 그림자, 테두리 제거. placeholder 좌측, 셰브론 우측 */}
       <button
         type="button"
@@ -65,7 +65,10 @@ export default function RegionMultiSelect({
       {/* 펼침 패널(A-3): 테두리 제거 + 그림자, rounded-8, 패널 패딩 0(항목마다 px-12 py-8).
           bg-white 는 드롭다운 표면상 필요해 추가(그림자만으론 투명). */}
       {open && (
-        <div className="rounded-base bg-white p-0 shadow-[0_0_15.2px_rgba(90,90,90,0.2)]">
+        // 오버레이(A-3): absolute로 문서 흐름에서 빼내 아래 섹션을 밀지 않고 위로 덮음.
+        // top-full = 트리거 바로 아래, mt-[12px] = Figma gap-12 간격.
+        // ❓ TODO: z-50 — 페이지 내 다른 오버레이(현재 LoginModal 등은 fixed 별도 스택)와 충돌 시 조정.
+        <div className="absolute left-0 right-0 top-full z-50 mt-[12px] rounded-base bg-white p-0 shadow-[0_0_15.2px_rgba(90,90,90,0.2)]">
           {/* '전체'(A-5): 구분선 제거, 일반 항목과 동일 스타일.
               ❓ TODO: '전체' 다중선택 동작(전체 토글) 확인 — 로직 현행 유지, 시각만 변경.
               ❓ TODO: Figma는 '전체'를 좌열 첫 항목으로 배치 → grid→flex 전환(B-1 지역목록 확정)과
