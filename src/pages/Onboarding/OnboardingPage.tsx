@@ -40,7 +40,8 @@ export default function OnboardingPage() {
         <StepIndicator steps={STEPS} current={step} />
 
         {/* §8 폼 본문 카드 (제목 + 지역 + 채용형태 + 버튼) */}
-        <div className="relative flex flex-col items-start gap-8 self-stretch rounded-2xl bg-white/50 p-10 shadow-[0_0_24px_0_rgba(51,68,255,0.12)]">
+        {/* D7: 폼카드 높이 635px 고정 — 전 스텝 통일(단일 소스). */}
+        <div className="relative flex h-[635px] flex-col items-start gap-8 self-stretch rounded-2xl bg-white/50 p-10 shadow-[0_0_24px_0_rgba(51,68,255,0.12)]">
           {/* §4 우측 상단 건너뛰기 */}
           <button
             type="button"
