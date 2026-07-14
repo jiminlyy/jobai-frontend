@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useInfiniteJobs } from '@/hooks/useInfiniteJobs';
+import { useJobSearch } from '@/hooks/useJobSearch';
 import { useRecommendedJobs } from '@/hooks/useInfiniteJobList';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useBookmarkStore } from '@/stores/bookmarkStore';
 import { useAuthStore } from '@/stores/authStore';
-import { parseCompanyType, type Job } from '@/types/job';
+import { parseCompanyType } from '@/types/job';
 import type { JobSummary } from '@/types/jobApi';
 import WelcomeCard from '@/components/home/WelcomeCard';
 import DeadlineCard, { type DeadlineItem } from '@/components/home/DeadlineCard';
@@ -43,18 +43,6 @@ function formatExpiresAt(dday: number): string {
   return `${mm}. ${dd} (${WEEKDAY_KO[target.getDay()]})`;
 }
 
-// 검색(q) 경로의 mock Job → JobSummary 임시 브릿지. 검색 API 연동(후속 명세) 시 제거.
-const mockJobToSummary = (j: Job): JobSummary => ({
-  id: Number(j.id),
-  source: j.companyType,
-  company: j.company,
-  title: j.title,
-  matchScore: j.score,
-  dDay: j.dday,
-  location: j.location,
-  employmentType: j.employmentType,
-});
-
 export default function HomePage() {
   const [searchParams] = useSearchParams();
   const companyType = parseCompanyType(searchParams.get('companyType'));
@@ -74,12 +62,12 @@ export default function HomePage() {
   };
   const recommended = useRecommendedJobs(filters, isAuthenticated && !isSearching);
 
-  // 검색(q) 경로는 별도 명세 범위 밖 → 기존 mock 훅을 임시 유지(q 없을 땐 결과 미사용).
-  const search = useInfiniteJobs({ companyType, q, condition: null });
+  // 검색(q) → 자연어 검색 API. q 를 query 로 전달, 검색 중일 때만 실행.
+  const search = useJobSearch(q, isSearching);
 
-  // 표시 목록: 검색 결과(mock Job)는 카드가 요구하는 JobSummary 로 임시 브릿지 변환.
+  // 검색/추천 모두 JobSummary 로 정규화되어 동일 JobCard 로 렌더.
   const jobs: JobSummary[] = isSearching
-    ? (search.data?.pages.flatMap((p) => p.jobs) ?? []).map(mockJobToSummary)
+    ? (search.data?.pages.flatMap((p) => p.jobs) ?? [])
     : (recommended.data?.pages.flatMap((p) => p.jobs) ?? []);
 
   const active = isSearching ? search : recommended;
