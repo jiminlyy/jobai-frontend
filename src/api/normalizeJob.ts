@@ -8,6 +8,12 @@ import type {
   PrivateJobDetail,
   RawPublicJobDetail,
   PublicJobDetail,
+  RawRelatedJob,
+  RelatedJob,
+  RawTechCard,
+  TechCard,
+  RawTechCardsResult,
+  TechCardsResult,
 } from '@/types/jobApi';
 
 // 목록 정규화 (게스트/회원 공용).
@@ -22,6 +28,35 @@ export const normalizeJobSummary = (raw: RawJobSummary): JobSummary => ({
   dDay: raw.dDay,
   location: raw.location,
   employmentType: raw.employmentType,
+});
+
+// tech-cards 연관공고 정규화. companyName → company (목록과 동일 규약).
+const normalizeRelatedJob = (raw: RawRelatedJob): RelatedJob => ({
+  id: raw.id,
+  source: raw.source,
+  company: raw.companyName,
+  title: raw.title,
+});
+
+// tech-cards 카드 정규화. nullable 필드는 명세대로 유지:
+//   id(INTERNAL=null)·originalUrl·publishedAt·relatedJobs(HACKERNEWS=null).
+// relatedJobs 는 배열일 때만 항목 정규화, null 이면 null 그대로 통과.
+export const normalizeTechCard = (raw: RawTechCard): TechCard => ({
+  id: raw.id,
+  source: raw.source,
+  badge: raw.badge,
+  headline: raw.headline,
+  subtext: raw.subtext,
+  originalUrl: raw.originalUrl,
+  publishedAt: raw.publishedAt,
+  createdAt: raw.createdAt,
+  relatedJobs: raw.relatedJobs ? raw.relatedJobs.map(normalizeRelatedJob) : null,
+});
+
+export const normalizeTechCardsResult = (
+  raw: RawTechCardsResult,
+): TechCardsResult => ({
+  cards: raw.cards.map(normalizeTechCard),
 });
 
 // 사기업 상세 정규화. 본문은 text.
