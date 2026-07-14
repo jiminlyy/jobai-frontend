@@ -31,6 +31,53 @@ export interface JobSummary {
   employmentType: string;
 }
 
+// ── tech-cards (홈 IT 인사이트 카드) 원시 응답 ────────────────────────
+// INTERNAL 카드는 id=null(내부 집계·공고 없음), HACKERNEWS 카드는 relatedJobs=null.
+export interface RawRelatedJob {
+  id: number;
+  source: CompanyType; // 'PUBLIC' | 'PRIVATE'
+  companyName: string;
+  title: string;
+}
+export interface RawTechCard {
+  id: number | null; // INTERNAL 카드는 null
+  source: 'INTERNAL' | 'HACKERNEWS';
+  badge: string; // '채용 트렌드' | '신규 공고' | '테크 뉴스'
+  headline: string;
+  subtext: string;
+  originalUrl: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  relatedJobs: RawRelatedJob[] | null; // HACKERNEWS 카드는 null
+}
+export interface RawTechCardsResult {
+  cards: RawTechCard[]; // 최대 3장
+}
+
+// ── tech-cards 카드용 공통 타입 ───────────────────────────────────────
+// companyName → company 는 목록 정규화(normalizeJobSummary)와 동일 규약.
+// nullable(id/originalUrl/publishedAt/relatedJobs)은 명세대로 유지한다.
+export interface RelatedJob {
+  id: number;
+  source: CompanyType;
+  company: string; // ← companyName
+  title: string;
+}
+export interface TechCard {
+  id: number | null;
+  source: 'INTERNAL' | 'HACKERNEWS';
+  badge: string;
+  headline: string;
+  subtext: string;
+  originalUrl: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  relatedJobs: RelatedJob[] | null;
+}
+export interface TechCardsResult {
+  cards: TechCard[];
+}
+
 // ── 상세 API 원시 응답 ────────────────────────────────────────────────
 export interface RawPrivateJobDetail {
   id: number;
