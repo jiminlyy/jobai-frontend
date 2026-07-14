@@ -78,6 +78,34 @@ export interface TechCardsResult {
   cards: TechCard[];
 }
 
+// ── 자연어 공고 검색 (GET /api/search/jobs) 원시 응답 ──────────────────
+// 목록 API 와 달리 matchScore 없음, deadline(날짜)만 제공(dDay 는 프론트 계산).
+export interface RawSearchJob {
+  id: number;
+  source: CompanyType; // 'PRIVATE' | 'PUBLIC'
+  title: string;
+  company: string;
+  location: string;
+  jobCategory: string | null;
+  employmentType: string;
+  applyUrl: string;
+  deadline: string | null; // 'YYYY-MM-DD' | null(상시)
+  createdAt: string; // ISO datetime
+}
+
+// 서버가 KEYWORD ↔ VECTOR 자동 전환. 데이터만 수신, 표시는 후속(§6 B구역).
+export interface SearchInfo {
+  method: 'KEYWORD' | 'VECTOR';
+  matchedCategories: string[];
+  expandedKeywords: string[];
+}
+
+export interface SearchJobsResult {
+  totalCount: number;
+  jobs: RawSearchJob[];
+  searchInfo: SearchInfo;
+}
+
 // ── 상세 API 원시 응답 ────────────────────────────────────────────────
 export interface RawPrivateJobDetail {
   id: number;

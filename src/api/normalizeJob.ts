@@ -14,7 +14,9 @@ import type {
   TechCard,
   RawTechCardsResult,
   TechCardsResult,
+  RawSearchJob,
 } from '@/types/jobApi';
+import { deadlineToDday } from '@/utils/dDay';
 
 // 목록 정규화 (게스트/회원 공용).
 // matchScore 통일이 핵심: 게스트(필드 undefined)·이력서X(null)·이력서O(점수)를
@@ -57,6 +59,20 @@ export const normalizeTechCardsResult = (
   raw: RawTechCardsResult,
 ): TechCardsResult => ({
   cards: raw.cards.map(normalizeTechCard),
+});
+
+// 검색 결과 정규화 → 목록과 동일 JobSummary(같은 JobCard 재사용).
+// matchScore 는 검색 응답에 없음 → null(점수 게이지 블러, 스펙상 정상).
+// deadline(날짜|null) → dDay 계산. jobCategory/applyUrl 은 카드 미사용이라 생략.
+export const normalizeSearchJob = (raw: RawSearchJob): JobSummary => ({
+  id: raw.id,
+  source: raw.source,
+  company: raw.company,
+  title: raw.title,
+  matchScore: null,
+  dDay: deadlineToDday(raw.deadline),
+  location: raw.location,
+  employmentType: raw.employmentType,
 });
 
 // 사기업 상세 정규화. 본문은 text.
