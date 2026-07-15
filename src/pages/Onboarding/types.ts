@@ -54,9 +54,10 @@ export interface OnboardingState {
   // step1
   locations: RegionCode[];
   experience: ExperienceLevel;
-  // TODO(백엔드 연동 필요): employmentType(채용형태) 제출 페이로드 매핑 —
+  // 채용 형태 다중 선택(Figma: 인턴+신입 동시 선택 가능).
+  // TODO(백엔드 연동 필요): employmentType 제출 페이로드 매핑 —
   // BE 협의 전까지 프론트 상태로만 보관(useSubmitOnboarding 미연동).
-  employmentType: EmploymentType;
+  employmentType: EmploymentType[];
   // step2 — 팬 카드에서 선택한 단일 희망 직무 (미선택 시 null).
   jobRole: Role | null;
   // TODO(백엔드 연동 필요): jobRole → 제출 payload/conditions.keywords 매핑.
@@ -76,7 +77,7 @@ export interface OnboardingState {
 export const INITIAL_ONBOARDING: OnboardingState = {
   locations: [],
   experience: 'NEW',
-  employmentType: 'NEWCOMER',
+  employmentType: [],
   jobRole: null,
   jobTypes: [],
   resumeId: null,

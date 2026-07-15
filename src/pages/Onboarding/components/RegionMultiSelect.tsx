@@ -20,6 +20,29 @@ function CheckBox({ checked }: { checked: boolean }) {
   );
 }
 
+// 트리거 안에 표시되는 선택 지역 칩: blue/100 배경 + blue/500 텍스트 + X(개별 제거).
+// X 클릭은 드롭다운 토글로 전파되지 않도록 stopPropagation.
+function RegionChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex w-[60px] items-center gap-[4px] rounded-[8px] bg-[#EBECFF] px-[8px] py-[4px]">
+      <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-pretendard text-[14px] font-medium tracking-[-0.28px] text-[#4741FF]">
+        {label}
+      </span>
+      <button
+        type="button"
+        aria-label={`${label} 선택 해제`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+        className="flex shrink-0"
+      >
+        <img src="/onboardclose.svg" alt="" aria-hidden className="h-4 w-4" />
+      </button>
+    </span>
+  );
+}
+
 export default function RegionMultiSelect({
   selected,
   onChange,
@@ -44,16 +67,27 @@ export default function RegionMultiSelect({
 
   return (
     <div className="relative flex flex-col gap-2 self-stretch">
-      {/* 드롭다운 트리거(A-2): 반투명 흰 배경 + 그림자, 테두리 제거. placeholder 좌측, 셰브론 우측 */}
-      <button
-        type="button"
+      {/* 드롭다운 트리거: 반투명 흰 배경 + 그림자. 선택 지역을 칩으로 표시
+          (전체 선택 시 '전체' 칩 1개), 미선택 시 placeholder. 우측 셰브론으로 열고닫음.
+          칩 안 X 버튼 때문에 <button> 대신 <div>(중첩 버튼 방지). */}
+      <div
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 self-stretch rounded-[12px] bg-white/70 p-[12px] text-left shadow-[0_0_15.2px_rgba(158,158,158,0.2)]"
+        className="flex min-h-[48px] cursor-pointer items-center gap-[10px] self-stretch rounded-[12px] bg-white/70 p-[12px] shadow-[0_0_15.2px_rgba(158,158,158,0.2)]"
       >
-        {/* D6: 선택 개수 분기 제거 — 항상 placeholder 문구·색(#AFB8C2) 고정 */}
-        <span className="flex-1 font-pretendard text-[16px] text-[#AFB8C2]">
-          선택해주세요.
-        </span>
+        <div className="flex flex-1 flex-wrap items-center gap-[10px]">
+          {selected.length === 0 ? (
+            <span className="font-pretendard text-[16px] text-[#AFB8C2]">
+              선택해주세요.
+            </span>
+          ) : allSelected ? (
+            // 전체 선택 → '전체' 칩 1개. X 는 전체 해제.
+            <RegionChip label="전체" onRemove={() => onChange([])} />
+          ) : (
+            selected.map((r) => (
+              <RegionChip key={r} label={r} onRemove={() => toggleRegion(r)} />
+            ))
+          )}
+        </div>
         {/* 접힘 = ∨, 펼침 = rotate(180deg) → ^ */}
         <img
           src="/graycheck.svg"
@@ -61,7 +95,7 @@ export default function RegionMultiSelect({
           aria-hidden
           className={`h-4 w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
         />
-      </button>
+      </div>
 
       {/* 펼침 패널(A-3): 테두리 제거 + 그림자, rounded-8, 패널 패딩 0(항목마다 px-12 py-8).
           bg-white 는 드롭다운 표면상 필요해 추가(그림자만으론 투명). */}

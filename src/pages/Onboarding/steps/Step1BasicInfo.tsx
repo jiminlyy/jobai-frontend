@@ -39,42 +39,45 @@ export default function Step1BasicInfo({ state, dispatch }: StepProps) {
         </h3>
         <div className="flex flex-col items-start gap-[12px] self-stretch">
           {EMPLOYMENT_OPTIONS.map((opt) => {
-            const checked = state.employmentType === opt.value;
+            const checked = state.employmentType.includes(opt.value);
             return (
-              // A-1: 카드형(bg-white + 그림자) + 우측 체크. 단일선택(배타) 로직 유지.
+              // 카드형 + 우측 체크마크. 선택 시 배경 blue/100 + 글자 blue/500 SemiBold (Figma).
               <label
                 key={opt.value}
-                className="flex h-[48px] cursor-pointer items-center justify-between self-stretch rounded-[12px] bg-white px-3 shadow-[0_0_7.6px_rgba(158,158,158,0.2)]"
+                className={`flex h-[48px] cursor-pointer items-center justify-between self-stretch rounded-[12px] px-3 shadow-[0_0_7.6px_rgba(158,158,158,0.2)] ${
+                  checked ? 'bg-[#EBECFF]' : 'bg-white'
+                }`}
               >
                 <input
-                  type="radio"
-                  name="employmentType"
+                  type="checkbox"
                   checked={checked}
                   onChange={() =>
                     dispatch({
                       type: 'SET_FIELD',
                       key: 'employmentType',
-                      value: opt.value,
+                      value: checked
+                        ? state.employmentType.filter((v) => v !== opt.value)
+                        : [...state.employmentType, opt.value],
                     })
                   }
                   className="sr-only"
                 />
-                <span className="font-pretendard text-[14px] font-normal text-[#171F29]">
+                <span
+                  className={`font-pretendard text-[14px] tracking-[-0.28px] ${
+                    checked
+                      ? 'font-semibold text-[#4741FF]'
+                      : 'font-normal text-[#171F29]'
+                  }`}
+                >
                   {opt.label}
                 </span>
-                {/* 우측 체크 아이콘 20px: 선택=파란 체크 / 미선택=회색 체크(onboarduncheck.svg) */}
-                {checked ? (
-                  /* ❓ TODO: 선택 상태 파란 체크 아이콘 에셋 확정 시 교체 (현행 유지) */
-                  <img src="/check.svg" alt="" aria-hidden className="h-5 w-5 shrink-0" />
-                ) : (
-                  /* ❓ TODO: 미선택 행 아이콘 상시 표시 여부 확인 */
-                  <img
-                    src="/onboarduncheck.svg"
-                    alt=""
-                    aria-hidden
-                    className="h-[20px] w-[20px] shrink-0"
-                  />
-                )}
+                {/* 우측 체크마크 20px: 선택=파란 체크(onboardcheck.svg) / 미선택=회색 체크(onboarduncheck.svg) */}
+                <img
+                  src={checked ? '/onboardcheck.svg' : '/onboarduncheck.svg'}
+                  alt=""
+                  aria-hidden
+                  className="h-5 w-5 shrink-0"
+                />
               </label>
             );
           })}
