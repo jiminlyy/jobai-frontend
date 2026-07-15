@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 interface JobConditions {
   positions: string[]; // 지역
+  locations: string[]; // 기업 형태
   experiences: string[]; // 고용 형태
 }
 
@@ -12,9 +13,10 @@ interface JobConditionsEditorProps {
 }
 
 const REGION_OPTIONS = ['전체', '서울', '경기', '인천', '대전', '충남', '충북', '세종', '제주', '울산', '전북', '전남', '광주', '경북', '경남', '강원'];
+const COMPANY_TYPE_OPTIONS = ['공기업', '사기업'];
 const EMPLOYMENT_TYPE_OPTIONS = ['인턴', '신입', '경력직', '계약직'];
 
-type FieldKey = 'positions' | 'experiences';
+type FieldKey = 'positions' | 'locations' | 'experiences';
 
 export default function JobConditionsEditor({
   conditions,
@@ -187,6 +189,7 @@ export default function JobConditionsEditor({
   return (
     <div ref={wrapperRef} className="space-y-4">
       <FieldRow field="positions" label="지역" options={REGION_OPTIONS} columns={3} panelWidth="560px" />
+      <FieldRow field="locations" label="기업 형태" options={COMPANY_TYPE_OPTIONS} panelWidth="200px" />
       <FieldRow field="experiences" label="고용 형태" options={EMPLOYMENT_TYPE_OPTIONS} panelWidth="200px" />
 
       {/* 하단 취소/저장 */}

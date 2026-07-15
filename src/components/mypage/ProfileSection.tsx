@@ -11,6 +11,7 @@ interface UserProfile {
   email: string;
   jobConditions: {
     positions: string[];
+    locations: string[];
     experiences: string[];
   };
 }
@@ -103,7 +104,7 @@ export default function ProfileSection({
           />
         ) : (
           <div className="space-y-4">
-            {/* 지역 - 가로 */}
+            {/* 직무 - 가로 */}
             <div className="flex items-center gap-3">
               <div className="text-sm text-gray-400 min-w-12 mr-6">지역</div>
               <div className="flex gap-[6px] flex-wrap">
@@ -115,7 +116,19 @@ export default function ProfileSection({
               </div>
             </div>
 
-            {/* 고용 형태 - 가로 */}
+            {/* 지역 - 가로 */}
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-gray-400 min-w-12 mr-6">기업 형태</div>
+              <div className="flex gap-2 flex-wrap">
+                {user.jobConditions.locations.map((loc, idx) => (
+                  <span key={idx} className="inline-block px-2.5 py-1.5 bg-[#F5F5FF] text-app-primary font-semibold text-xs rounded-[7px]">
+                    {loc}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* 경력 - 드롭다운 */}
             <div className="flex items-center gap-3">
               <div className="text-sm text-gray-400 min-w-12 mr-6">고용 형태</div>
               <div className="flex gap-2 flex-wrap">
