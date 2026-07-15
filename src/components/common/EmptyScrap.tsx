@@ -20,24 +20,26 @@ export default function EmptyScrap({
   className = '',
 }: EmptyScrapProps) {
   return (
-    <div className={`flex flex-col items-center justify-center text-center ${className}`}>
+    <div className={`flex flex-col items-center justify-center gap-[32px] text-center ${className}`}>
       {/* 장식용 일러스트이므로 alt는 비우고 aria-hidden 처리 */}
-      <img
-        src="/noscrap.svg"
-        alt=""
-        aria-hidden="true"
-        className="mb-3 h-16 w-16 select-none"
-      />
+      {/* TODO(F8): 아이콘 h-16 w-16(64×64)이 Figma DeadlineCard 실측(54×52.652)과 불일치.
+                    EmptyScrap을 ScrapPage(전체 페이지)와 공유 중이라 축소 시 페이지 빈 상태가
+                    빈약해질 위험. ScrapPage 빈 상태 Figma 확인 후 통일 필요. */}
+      <img src="/noscrap.svg" alt="" aria-hidden="true" className="h-16 w-16 select-none" />
 
-      <p className="mb-4 text-sm text-app-text-subtle">{title}</p>
+      <div className="flex flex-col items-center gap-[20px]">
+        <p className="text-[16px] font-semibold leading-[1.3] tracking-[-0.32px] text-app-text-subtle">
+          {title}
+        </p>
 
-      <button
-        type="button"
-        onClick={onAction}
-        className="inline-flex h-[41px] w-[126px] items-center justify-center rounded-lg px-[18px] py-[12px] text-sm font-medium text-purple-500 transition-colors bg-purple-50 hover:bg-purple-100"
-      >
-        {actionLabel}
-      </button>
+        <button
+          type="button"
+          onClick={onAction}
+          className="inline-flex items-center justify-center rounded-[12px] bg-purple-50 px-[16px] py-[10px] text-[14px] font-semibold tracking-[-0.28px] text-purple-500 transition-colors hover:bg-purple-100"
+        >
+          {actionLabel}
+        </button>
+      </div>
     </div>
   );
 }

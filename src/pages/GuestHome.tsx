@@ -176,7 +176,7 @@ export default function GuestHome() {
             <button
               type="button"
               onClick={goLogin}
-              className="inline-flex items-center rounded-[12px] bg-blue-50 px-4 py-2.5 text-sm font-semibold tracking-[-0.28px] text-blue-500 transition hover:bg-blue-100"
+              className="inline-flex items-center rounded-[12px] bg-purple-50 px-4 py-2.5 text-sm font-semibold tracking-[-0.28px] text-blue-500 transition hover:bg-blue-100"
             >
               가입하러 가기
             </button>

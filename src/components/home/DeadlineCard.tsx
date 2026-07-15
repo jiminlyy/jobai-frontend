@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import timeIcon from '/mingcute_time-fill.svg';
 import EmptyScrap from '@/components/common/EmptyScrap';
-import { useUpcomingDeadlineScraps } from '@/hooks/useScraps';
+import { useUpcomingDeadlineScraps, useScraps } from '@/hooks/useScraps';
 import { formatDDay } from '@/utils/dDay';
 
 // 우측 chevron (size-24). rotate-180 은 사용처에서 부여.
@@ -16,8 +16,10 @@ function ChevronIcon({ className }: { className?: string }) {
 export default function DeadlineCard() {
   const navigate = useNavigate();
   // S3: 서버가 정렬·마감필터·최대3 수행. 🔴 프론트 재정렬/재필터/slice 금지(§1.3·§4).
-  const { data, isLoading } = useUpcomingDeadlineScraps();
-  const jobs = data ?? [];
+  const { data: upcoming = [], isPending: s3Loading } = useUpcomingDeadlineScraps();
+  // S1: E-1(스크랩 0건) vs E-2(스크랩은 있으나 임박 없음) 구분용.
+  // queryKey ['scraps','list'] 동일 → BookmarkButton 캐시 공유, 요청 증가 0.
+  const { data: scraps = [], isPending: s1Loading } = useScraps();
 
   // 빈 상태 버튼: 같은 홈 화면의 "딱 맞는 공고" 섹션으로 부드럽게 스크롤
   const handleGoToScrap = () => {
@@ -40,16 +42,15 @@ export default function DeadlineCard() {
         <ChevronIcon className="h-6 w-6 flex-shrink-0 rotate-180 text-app-text-subtle" />
       </button>
 
-      {isLoading ? (
+      {/* 🔴 순서 중요: 로딩 → 목록 → E-1(스크랩 0건) → E-2(임박 없음) */}
+      {s1Loading || s3Loading ? (
         <div className="flex-1 animate-pulse rounded-xl bg-white/40" />
-      ) : jobs.length === 0 ? (
-        <EmptyScrap onAction={handleGoToScrap} className="flex-1" />
-      ) : (
+      ) : upcoming.length > 0 ? (
         <ul className="flex flex-col">
-          {jobs.map((s, index) => (
+          {upcoming.map((s, index) => (
             <li
               key={s.key}
-              className={index < jobs.length - 1 ? 'border-b-[0.7px] border-gray-200' : ''}
+              className={index < upcoming.length - 1 ? 'border-b-[0.7px] border-gray-200' : ''}
             >
               {/* 상세이동 복구 — S3가 source 를 주므로 /jobs/:source/:id 로 이동 (C3) */}
               <button
@@ -77,6 +78,19 @@ export default function DeadlineCard() {
             </li>
           ))}
         </ul>
+      ) : scraps.length === 0 ? (
+        // E-1: 스크랩 0건 (현행 유지 — 문구 변경 금지)
+        <EmptyScrap onAction={handleGoToScrap} className="flex-1" />
+      ) : (
+        // E-2: 스크랩은 있으나 임박(upcoming) 없음
+        // TODO(E-4): S1이 전부 dDay < 0(마감 지남)이면 "여유 있는 공고들뿐"은 부정확.
+        //            디자이너 확인 대기. 그 전까지 E-2로 통합.
+        <EmptyScrap
+          title="아직 여유 있는 공고들뿐이에요"
+          actionLabel="전체 스크랩 보기"
+          onAction={() => navigate('/scrap')}
+          className="flex-1"
+        />
       )}
     </div>
   );
