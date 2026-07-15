@@ -62,14 +62,15 @@ export const normalizeTechCardsResult = (
 });
 
 // 검색 결과 정규화 → 목록과 동일 JobSummary(같은 JobCard 재사용).
-// matchScore 는 검색 응답에 없음 → null(점수 게이지 블러, 스펙상 정상).
+// matchScore(이력서 기준 점수) 는 recommended-jobs 와 동일. 게스트/이력서X → null
+// → JobCard 가 matchScore===null 이면 블러 "??", 값 있으면 선명한 게이지로 분기.
 // deadline(날짜|null) → dDay 계산. jobCategory/applyUrl 은 카드 미사용이라 생략.
 export const normalizeSearchJob = (raw: RawSearchJob): JobSummary => ({
   id: raw.id,
   source: raw.source,
   company: raw.company,
   title: raw.title,
-  matchScore: null,
+  matchScore: raw.matchScore ?? null,
   dDay: deadlineToDday(raw.deadline),
   location: raw.location,
   employmentType: raw.employmentType,
