@@ -29,6 +29,8 @@ export interface JobSummary {
   dDay: number | null; // null = 마감일 없음(상시)
   location: string;
   employmentType: string;
+  // 검색 결과 행(SearchResultRow)에서만 사용. 추천/최신 목록(JobCard)은 미사용 → optional.
+  jobCategory?: string | null;
 }
 
 // ── tech-cards (홈 IT 인사이트 카드) 원시 응답 ────────────────────────
