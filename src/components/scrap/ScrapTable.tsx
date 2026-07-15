@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import ScoreGauge2 from '@/components/common/ScoreGauge2';
-import { formatDDay } from '@/utils/dDay';
 import type { Scrap, ScrapKey, ScrapSource } from '@/types/scrap';
 
 interface ScrapTableProps {
@@ -97,8 +96,8 @@ function ScrapTable({
 
               <div className="text-[16px] text-app-text text-center">{item.employmentType}</div>
 
-              {/* 마감 기한: S1은 deadline 없음 → dDay 파생 텍스트 (§1.2). TODO(G4) 백엔드 deadline 추가 시 날짜로 원복 */}
-              <div className="text-[16px] text-app-text text-center">{formatDDay(item.dDay)}</div>
+              {/* 마감 기한: S1이 deadline(날짜) 제공(v5). null이면 상시. dday는 탭/정렬 전용 */}
+              <div className="text-[16px] text-app-text text-center">{item.deadline ?? '상시'}</div>
 
               <div className="flex items-center justify-center">
                 <div className="transform scale-[0.7] origin-center">

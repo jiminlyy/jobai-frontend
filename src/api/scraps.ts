@@ -19,10 +19,9 @@ export const normalizeScrap = (raw: RawScrapItem): Scrap => ({
   title: raw.title,
   location: raw.location,
   employmentType: raw.employmentType,
-  // TODO(G9): S1에 matchScore 없음 → 항상 null(블러 "??"). 백엔드 추가 시 RawScrapItem에 필드 선언하고 as any 제거
-  matchScore: (raw as { matchScore?: number | null }).matchScore ?? null,
-  dDay: raw.dDay ?? null,
-  deadline: null, // S1은 deadline 미제공 (G4)
+  dDay: raw.dday ?? null, // 🔴 FIX(v5): raw.dDay → raw.dday (실측 확정 — "상시" 버그의 원인)
+  deadline: raw.deadline ?? null, // 🔴 FIX(v5): S1도 deadline 제공(G4 오해 해소)
+  matchScore: null, // TODO(G9): S1 미제공 확정. 백엔드 추가 시 raw.matchScore ?? null
   scrappedAt: raw.scrappedAt,
 });
 
@@ -34,10 +33,9 @@ export const normalizeUpcomingScrap = (raw: RawUpcomingScrap): Scrap => ({
   title: raw.title,
   location: raw.location,
   employmentType: raw.employmentType,
-  matchScore: (raw as { matchScore?: number | null }).matchScore ?? null, // TODO(G9)
-  // TODO(G1): 백엔드가 dDay/dday 중 하나로 확정하면 반대쪽 제거
-  dDay: raw.dDay ?? raw.dday ?? null,
+  dDay: raw.dday ?? null, // G1 확정: dday(소문자) 단일
   deadline: raw.deadline ?? null,
+  matchScore: null, // TODO(G9)
   scrappedAt: raw.scrappedAt,
 });
 
