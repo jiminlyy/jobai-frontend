@@ -91,6 +91,7 @@ export interface RawSearchJob {
   applyUrl: string;
   deadline: string | null; // 'YYYY-MM-DD' | null(상시)
   createdAt: string; // ISO datetime
+  matchScore?: number | null; // 이력서 기준 점수(0~100). recommended-jobs 와 동일, 없으면 null
 }
 
 // 서버가 KEYWORD ↔ VECTOR 자동 전환. 데이터만 수신, 표시는 후속(§6 B구역).
