@@ -4,7 +4,7 @@ import { useJobSearch } from '@/hooks/useJobSearch';
 import { useRecommendedJobs } from '@/hooks/useInfiniteJobList';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useAuthStore } from '@/stores/authStore';
-import { parseCompanyType } from '@/types/job';
+import { parseCompanyType, type CompanyType } from '@/types/job';
 import type { JobSummary } from '@/types/jobApi';
 import WelcomeCard from '@/components/home/WelcomeCard';
 import DeadlineCard from '@/components/home/DeadlineCard';
@@ -34,7 +34,15 @@ function AiIcon({ className }: { className?: string }) {
 
 export default function HomePage() {
   const [searchParams] = useSearchParams();
-  const companyType = parseCompanyType(searchParams.get('companyType'));
+  // 기업형태 다중: 반복 쿼리(companyType=A&companyType=B) → 유효값만 + 중복 제거.
+  const companyTypes = [
+    ...new Set(
+      searchParams
+        .getAll('companyType')
+        .map(parseCompanyType)
+        .filter((c): c is CompanyType => c !== undefined),
+    ),
+  ];
   const q = searchParams.get('q')?.trim() ?? '';
   const isSearching = q.length > 0;
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -45,7 +53,7 @@ export default function HomePage() {
   const locations = searchParams.getAll('location');
   const employmentTypes = searchParams.getAll('employmentType');
   const filters = {
-    companyTypes: companyType ? [companyType] : undefined,
+    companyTypes: companyTypes.length ? companyTypes : undefined,
     locations: locations.length ? locations : undefined,
     employmentTypes: employmentTypes.length ? employmentTypes : undefined,
   };
