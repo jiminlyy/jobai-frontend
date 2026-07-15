@@ -3,24 +3,22 @@ import { useSearchParams } from 'react-router-dom';
 import { useJobSearch } from '@/hooks/useJobSearch';
 import { useRecommendedJobs } from '@/hooks/useInfiniteJobList';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useBookmarkStore } from '@/stores/bookmarkStore';
 import { useAuthStore } from '@/stores/authStore';
-import { parseCompanyType } from '@/types/job';
+import { parseCompanyType, type CompanyType } from '@/types/job';
 import type { JobSummary } from '@/types/jobApi';
 import WelcomeCard from '@/components/home/WelcomeCard';
-import DeadlineCard, { type DeadlineItem } from '@/components/home/DeadlineCard';
+import DeadlineCard from '@/components/home/DeadlineCard';
 import AINewsCard from '@/components/home/AINewsCard';
 import TrendingScrap, {
   type TrendingScrapItem,
 } from '@/components/home/TrendingScrap';
 import FilterBar from '@/components/home/FilterBar';
 import JobList from '@/components/home/JobList';
+import SearchResultList from '@/components/search/SearchResultList';
 import NoResults from '@/components/home/NoResults';
 import { mockJobs } from '@/data/mockJobs';
 import TopBar from '@/components/layout/TopBar';
 import Footer from '@/components/layout/Footer';
-
-const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
 // 섹션 타이틀용 ai 아이콘 (size-24, §6 E). mingcute:ai-fill 근사.
 function AiIcon({ className }: { className?: string }) {
@@ -35,17 +33,17 @@ function AiIcon({ className }: { className?: string }) {
   );
 }
 
-function formatExpiresAt(dday: number): string {
-  const target = new Date();
-  target.setDate(target.getDate() + dday);
-  const mm = String(target.getMonth() + 1).padStart(2, '0');
-  const dd = String(target.getDate()).padStart(2, '0');
-  return `${mm}. ${dd} (${WEEKDAY_KO[target.getDay()]})`;
-}
-
 export default function HomePage() {
   const [searchParams] = useSearchParams();
-  const companyType = parseCompanyType(searchParams.get('companyType'));
+  // 기업형태 다중: 반복 쿼리(companyType=A&companyType=B) → 유효값만 + 중복 제거.
+  const companyTypes = [
+    ...new Set(
+      searchParams
+        .getAll('companyType')
+        .map(parseCompanyType)
+        .filter((c): c is CompanyType => c !== undefined),
+    ),
+  ];
   const q = searchParams.get('q')?.trim() ?? '';
   const isSearching = q.length > 0;
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -56,7 +54,7 @@ export default function HomePage() {
   const locations = searchParams.getAll('location');
   const employmentTypes = searchParams.getAll('employmentType');
   const filters = {
-    companyTypes: companyType ? [companyType] : undefined,
+    companyTypes: companyTypes.length ? companyTypes : undefined,
     locations: locations.length ? locations : undefined,
     employmentTypes: employmentTypes.length ? employmentTypes : undefined,
   };
@@ -81,25 +79,6 @@ export default function HomePage() {
     if (active.hasNextPage && !active.isFetchingNextPage) active.fetchNextPage();
   }, !!active.hasNextPage);
 
-  // "곧 마감되는 스크랩 공고" 카드는 실제 스크랩(북마크)된 공고만 노출한다.
-  // TODO(API 연동): 북마크 store 대신 실제 스크랩 목록 API로 교체.
-  const bookmarkedIds = useBookmarkStore((s) => s.bookmarkedIds);
-  const deadlineItems = useMemo<DeadlineItem[]>(
-    () =>
-      mockJobs
-        .filter((j) => bookmarkedIds.has(j.id))
-        .sort((a, b) => a.dday - b.dday)
-        .slice(0, 3)
-        .map((j) => ({
-          id: j.id,
-          title: j.title,
-          company: j.company,
-          dDay: j.dday,
-          expiresAt: formatExpiresAt(j.dday),
-        })),
-    [bookmarkedIds]
-  );
-
   const trendingItems = useMemo<TrendingScrapItem[]>(
     () =>
       [...mockJobs]
@@ -116,67 +95,86 @@ export default function HomePage() {
 
   return (
     <>
-      <TopBar />
-      
-      {!isSearching && <TrendingScrap items={trendingItems} />}
+      <TopBar>
+        {!isSearching && <TrendingScrap items={trendingItems} />}
+      </TopBar>
 
-      {/* A. 히어로(440) + 카드 2개(302×306) — flex gap-20 items-center (bg-gray-50·패딩은 MainLayout) */}
-      {!isSearching && (
-        <section className="mb-9 flex items-center gap-5">
-          <WelcomeCard />
-          <DeadlineCard jobs={deadlineItems} />
-          <AINewsCard />
-        </section>
-      )}
+      {isSearching ? (
+        // 검색 모드(D1·D3): 705 메인(헤더 + 1열 결과) + gap-77 + 302 사이드바(P2·P3, Figma 1657:20904).
+        <div className="flex gap-[77px]">
+          <main className="w-[705px]">
+            {/* 검색 결과 헤더 — 리스트와 32px(§6) */}
+            <div className="mb-[32px] flex items-center gap-2">
+              <div className="text-base font-bold text-app-text">
+                "{q}" 검색 결과
+                {searchTotalCount != null && searchTotalCount > 0 && (
+                  <span className="ml-1 font-normal text-gray-500">
+                    {searchTotalCount}건
+                  </span>
+                )}
+              </div>
+            </div>
 
-      {/* E. 섹션 타이틀 — ai아이콘24 + 20 SemiBold/-0.4px, 개인화 이름 */}
-      {!isSearching && (
-        <div id="recommended-jobs" className="mb-4 flex scroll-mt-6 items-center gap-3">
-          <AiIcon className="h-6 w-6 flex-shrink-0 text-app-primary" />
-          <h2 className="font-pretendard text-[20px] font-semibold leading-[140%] tracking-[-0.4px] text-black">
-            {name ?? '회원'} 님에게 딱 맞는 공고
-          </h2>
-        </div>
-      )}
-
-      {isSearching && (
-        <div className="mb-4 flex items-center gap-2">
-          <div className="text-base font-bold text-app-text">
-            "{q}" 검색 결과
-            {/* 전체 건수(gray-500): totalCount 필드 사용. 결과 1건 이상일 때만 표시.
-                크기=헤딩과 동일(text-base)/Regular — ❓ TODO: Figma 크기·굵기 확정 시 조정. */}
-            {searchTotalCount != null && searchTotalCount > 0 && (
-              <span className="ml-1 font-normal text-gray-500">
-                {searchTotalCount}건
-              </span>
+            {isError ? (
+              <NoResults title="공고를 불러오지 못했습니다" description="잠시 후 다시 시도해 주세요." />
+            ) : isLoading ? (
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-[124px] animate-pulse rounded-xl border border-app-border bg-app-surface" />
+                ))}
+              </div>
+            ) : jobs.length === 0 ? (
+              <NoResults query={q} />
+            ) : (
+              <>
+                <SearchResultList jobs={jobs} />
+                <div ref={loadMoreRef} className="h-8" />
+              </>
             )}
-          </div>
-        </div>
-      )}
+          </main>
 
-      {!isSearching && <FilterBar />}
-
-      {isError ? (
-        <NoResults
-          title="공고를 불러오지 못했습니다"
-          description="잠시 후 다시 시도해 주세요."
-        />
-      ) : isLoading ? (
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-[124px] animate-pulse rounded-xl border border-app-border bg-app-surface"
-            />
-          ))}
+          {/* 사이드바 — 검색 중에도 유지(P2). 카드 간격 28px(§6) */}
+          <aside className="flex w-[302px] flex-col gap-[28px]">
+            <DeadlineCard />
+            <AINewsCard />
+          </aside>
         </div>
-      ) : jobs.length === 0 ? (
-        <NoResults query={isSearching ? q : undefined} />
       ) : (
-        <section className="w-full max-w-[1164px]">
-          <JobList jobs={jobs} />
-          <div ref={loadMoreRef} className="h-8" />
-        </section>
+        <>
+          {/* A. 히어로(440) + 카드 2개(302×306) — flex gap-20 items-center (bg-gray-50·패딩은 MainLayout) */}
+          <section className="mb-9 flex items-center gap-5">
+            <WelcomeCard />
+            <DeadlineCard />
+            <AINewsCard />
+          </section>
+
+          {/* E. 섹션 타이틀 — ai아이콘24 + 20 SemiBold/-0.4px, 개인화 이름 */}
+          <div id="recommended-jobs" className="mb-4 flex scroll-mt-6 items-center gap-3">
+            <AiIcon className="h-6 w-6 flex-shrink-0 text-app-primary" />
+            <h2 className="font-pretendard text-[20px] font-semibold leading-[140%] tracking-[-0.4px] text-black">
+              {name ?? '회원'} 님에게 딱 맞는 공고
+            </h2>
+          </div>
+
+          <FilterBar />
+
+          {isError ? (
+            <NoResults title="공고를 불러오지 못했습니다" description="잠시 후 다시 시도해 주세요." />
+          ) : isLoading ? (
+            <div className="flex flex-col gap-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-[124px] animate-pulse rounded-xl border border-app-border bg-app-surface" />
+              ))}
+            </div>
+          ) : jobs.length === 0 ? (
+            <NoResults />
+          ) : (
+            <section className="w-full max-w-[1164px]">
+              <JobList jobs={jobs} />
+              <div ref={loadMoreRef} className="h-8" />
+            </section>
+          )}
+        </>
       )}
 
       {/* 홈 전용 푸터 (Footer.spec §6 — 홈에서만) */}

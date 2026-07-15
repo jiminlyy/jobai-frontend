@@ -29,6 +29,8 @@ export interface JobSummary {
   dDay: number | null; // null = 마감일 없음(상시)
   location: string;
   employmentType: string;
+  // 검색 결과 행(SearchResultRow)에서만 사용. 추천/최신 목록(JobCard)은 미사용 → optional.
+  jobCategory?: string | null;
 }
 
 // ── tech-cards (홈 IT 인사이트 카드) 원시 응답 ────────────────────────
@@ -91,6 +93,7 @@ export interface RawSearchJob {
   applyUrl: string;
   deadline: string | null; // 'YYYY-MM-DD' | null(상시)
   createdAt: string; // ISO datetime
+  matchScore?: number | null; // 이력서 기준 점수(0~100). recommended-jobs 와 동일, 없으면 null
 }
 
 // 서버가 KEYWORD ↔ VECTOR 자동 전환. 데이터만 수신, 표시는 후속(§6 B구역).

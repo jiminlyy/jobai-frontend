@@ -11,7 +11,7 @@ import TrendingScrap, {
 import { useLatestJobs } from '@/hooks/useInfiniteJobList';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useTechCards, toTechGlanceRows } from '@/hooks/useTechCards';
-import { parseCompanyType } from '@/types/job';
+import { parseCompanyType, type CompanyType } from '@/types/job';
 import { mockJobs } from '@/data/mockJobs';
 
 // 우측 chevron (size-24). rotate-180 은 사용처에서 부여.
@@ -76,11 +76,19 @@ export default function GuestHome() {
 
   // 게스트 공고 그리드 — latest-jobs API. matchScore 필드 없음 → 정규화에서 null → 카드 블러.
   const [searchParams] = useSearchParams();
-  const companyType = parseCompanyType(searchParams.get('companyType'));
+  // 기업형태 다중: 반복 쿼리 → 유효값만 + 중복 제거 (HomePage와 동일).
+  const companyTypes = [
+    ...new Set(
+      searchParams
+        .getAll('companyType')
+        .map(parseCompanyType)
+        .filter((c): c is CompanyType => c !== undefined),
+    ),
+  ];
   const locations = searchParams.getAll('location');
   const employmentTypes = searchParams.getAll('employmentType');
   const filters = {
-    companyTypes: companyType ? [companyType] : undefined,
+    companyTypes: companyTypes.length ? companyTypes : undefined,
     locations: locations.length ? locations : undefined,
     employmentTypes: employmentTypes.length ? employmentTypes : undefined,
   };
@@ -102,10 +110,10 @@ export default function GuestHome() {
 
   return (
     <>
-      <TopBar />
-
-      {/* §2 검색바 아래 실시간 순위 (회원 컴포넌트 재사용) */}
-      <TrendingScrap items={trendingItems} />
+      {/* §2 검색바 + 아래 실시간 순위를 한 716 컬럼으로 (Figma 1648:16406) */}
+      <TopBar>
+        <TrendingScrap items={trendingItems} />
+      </TopBar>
 
       {/* §3 히어로(440) + 사이드 카드 2개(302×306) — bg-gray-50 행, gap-20 items-center */}
       <section className="mb-9 flex items-center gap-5">
@@ -176,7 +184,7 @@ export default function GuestHome() {
             <button
               type="button"
               onClick={goLogin}
-              className="inline-flex items-center rounded-[12px] bg-blue-50 px-4 py-2.5 text-sm font-semibold tracking-[-0.28px] text-blue-500 transition hover:bg-blue-100"
+              className="inline-flex items-center rounded-[12px] bg-purple-50 px-4 py-2.5 text-sm font-semibold tracking-[-0.28px] text-blue-500 transition hover:bg-blue-100"
             >
               가입하러 가기
             </button>

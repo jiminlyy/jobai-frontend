@@ -1,7 +1,6 @@
 // 경력 (Figma 라디오: 신입 / 1-3년 / 3-5년 / 5년 이상 → 단일 선택)
-// 제출 파이프라인(useSubmitOnboarding → createCondition/conditionStore → 홈 필터)이
-// 이 값을 사용하므로 데이터 모델/기본값은 그대로 유지한다. (Step1 UI에서는 더 이상
-// 노출하지 않지만 INITIAL_ONBOARDING 기본값으로 계속 제출된다.)
+// Step1 UI 미노출·서버 제출(E4~E6) 미전송이고, conditionStore 제거 후 소비처가 없는 죽은 값.
+// 필드 제거는 별도 작업 — 지금은 데이터 모델/기본값만 유지한다.
 export type ExperienceLevel = 'NEW' | 'EXP_1_3' | 'EXP_3_5' | 'EXP_5_PLUS';
 
 export const EXPERIENCE_OPTIONS: { value: ExperienceLevel; label: string }[] = [
@@ -54,9 +53,10 @@ export interface OnboardingState {
   // step1
   locations: RegionCode[];
   experience: ExperienceLevel;
-  // TODO(백엔드 연동 필요): employmentType(채용형태) 제출 페이로드 매핑 —
+  // 채용 형태 다중 선택(Figma: 인턴+신입 동시 선택 가능).
+  // TODO(백엔드 연동 필요): employmentType 제출 페이로드 매핑 —
   // BE 협의 전까지 프론트 상태로만 보관(useSubmitOnboarding 미연동).
-  employmentType: EmploymentType;
+  employmentType: EmploymentType[];
   // step2 — 팬 카드에서 선택한 단일 희망 직무 (미선택 시 null).
   jobRole: Role | null;
   // TODO(백엔드 연동 필요): jobRole → 제출 payload/conditions.keywords 매핑.
@@ -76,7 +76,7 @@ export interface OnboardingState {
 export const INITIAL_ONBOARDING: OnboardingState = {
   locations: [],
   experience: 'NEW',
-  employmentType: 'NEWCOMER',
+  employmentType: [],
   jobRole: null,
   jobTypes: [],
   resumeId: null,

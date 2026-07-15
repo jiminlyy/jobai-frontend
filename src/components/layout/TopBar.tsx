@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
-export default function TopBar() {
+// children = 검색바 아래 같은 716 컬럼에 렌더(실시간 스크랩). Figma 1648:16406 gap-[16px].
+export default function TopBar({ children }: { children?: ReactNode }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,10 +13,13 @@ export default function TopBar() {
   const [value, setValue] = useState(q);
   const isComposing = useRef(false); // 조합 중 여부
 
-  // 최근검색어 기능 제거에 따른 잔여 데이터 정리 (한시성 마이그레이션 코드).
-  // 기존 사용자 브라우저에 남은 'recentSearches' 키만 1회 제거. 충분히 배포된 뒤 삭제 가능.
+  // 제거된 기능의 잔여 localStorage 데이터 1회성 정리 (한시성 마이그레이션 코드).
+  // 🔴 removeItem 개별 키만 — clear() 금지(jobai.onboarded 등 공존).
+  //  - recentSearches: 최근검색어 기능 제거 잔재
+  //  - jobai.condition: conditionStore 제거(서버 E1 단일 소스 전환) 잔재
   useEffect(() => {
     localStorage.removeItem('recentSearches');
+    localStorage.removeItem('jobai.condition');
   }, []);
 
   // 뒤로가기·링크 등 외부 요인으로 URL 의 q 가 바뀌면 입력값을 동기화한다.
@@ -51,8 +55,9 @@ export default function TopBar() {
   };
 
   return (
-    // 2-2 검색 컨테이너: w-716, 검색바.
-    <div className="mb-8 flex w-full max-w-[716px] flex-col gap-4">
+    // 2-2 검색 컨테이너: w-716 컬럼. 검색바 + children(실시간 스크랩) 사이 gap-[16px].
+    // mb-8 은 컬럼 아래(다음 섹션과의 간격, §3.3 기존 32px 유지).
+    <div className="mb-8 flex w-full max-w-[716px] flex-col gap-[16px]">
       {/* 2-3 검색바: px-24 py-12, rounded-full, border-gray-100. 아이콘은 우측. */}
       <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-app-surface px-6 py-3">
         <input
@@ -74,6 +79,7 @@ export default function TopBar() {
         {/* 2-5 검색 아이콘 size-24 */}
         <img src="/A22.svg" alt="검색" className="h-6 w-6 shrink-0" />
       </div>
+      {children}
     </div>
   );
 }
