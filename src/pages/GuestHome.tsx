@@ -11,7 +11,7 @@ import TrendingScrap, {
 import { useLatestJobs } from '@/hooks/useInfiniteJobList';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useTechCards, toTechGlanceRows } from '@/hooks/useTechCards';
-import { parseCompanyType } from '@/types/job';
+import { parseCompanyType, type CompanyType } from '@/types/job';
 import { mockJobs } from '@/data/mockJobs';
 
 // 우측 chevron (size-24). rotate-180 은 사용처에서 부여.
@@ -76,11 +76,19 @@ export default function GuestHome() {
 
   // 게스트 공고 그리드 — latest-jobs API. matchScore 필드 없음 → 정규화에서 null → 카드 블러.
   const [searchParams] = useSearchParams();
-  const companyType = parseCompanyType(searchParams.get('companyType'));
+  // 기업형태 다중: 반복 쿼리 → 유효값만 + 중복 제거 (HomePage와 동일).
+  const companyTypes = [
+    ...new Set(
+      searchParams
+        .getAll('companyType')
+        .map(parseCompanyType)
+        .filter((c): c is CompanyType => c !== undefined),
+    ),
+  ];
   const locations = searchParams.getAll('location');
   const employmentTypes = searchParams.getAll('employmentType');
   const filters = {
-    companyTypes: companyType ? [companyType] : undefined,
+    companyTypes: companyTypes.length ? companyTypes : undefined,
     locations: locations.length ? locations : undefined,
     employmentTypes: employmentTypes.length ? employmentTypes : undefined,
   };
