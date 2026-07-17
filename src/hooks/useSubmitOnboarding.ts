@@ -35,7 +35,7 @@ export function useSubmitOnboarding() {
       // ⚠️ TODO(BE): employmentType 은 다중선택 배열인데 careerType 은 단일 문자열 →
       //    현재 [0]만 전송, 사용자가 2개↑ 고르면 나머지 유실. (A)BE 배열화 (B)Step1 단일선택.
       await saveOnboardingBasicInfo({
-        careerType: EMPLOYMENT_OPTIONS.find((o) => o.value === career)!.label,
+        careerType: [EMPLOYMENT_OPTIONS.find((o) => o.value === career)!.label],
         locations: s.locations,
       });
       await saveOnboardingJobCategory({
