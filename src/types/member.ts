@@ -28,9 +28,9 @@ export interface MemberProfile {
 }
 
 export interface JobPreference {
-  // ❓ TODO(B1): E1 **응답**의 careerType 실제 타입 미확인. E3 **요청**은 배열 확정이나
-  //    응답 계약은 별개. ce875fb(jjung0476)가 근거 기록 없이 배열화(Phase 1 감사 G1·G3).
-  //    §5 검증 4번(GET /members/me 실측)에서 확정 예정. 그 전까지 현행 유지·임의 변경 금지.
+  // ✅ E1 응답 배열 확정 (실서버 응답 실측: ["인턴"]). B1 해제.
+  // ⚠️ union 미승격: 4종 검증은 요청 경로에만 있음. 과거 2종(신입/경력) 시절
+  //    legacy 값이 DB에 남아있을 수 있어 응답을 CareerType[]로 좁히면 거짓이 될 수 있음.
   careerType: string[]; // 온보딩 전 빈 배열. 복수 선택 가능
   jobCategories: string[]; // 한글. 예: ["개발자"]
   locations: string[]; // 한글 시도명. 예: ["서울"]
