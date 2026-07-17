@@ -21,7 +21,7 @@ export interface RawScrapItem {
   deadline: string | null; // ✅ 실측: S1도 제공("2026-07-24"). Swagger 예시 누락이었음(G4)
   scrappedAt: string;
   dday: number | null; // ✅ 실측: 소문자. dDay 아님 (G1 확정)
-  // matchScore 없음 — G9 (백엔드 요청 대상)
+  matchScore?: number | null; // ✅ 실측: S1 제공(56/59/65). optional — 부재 응답 대비
 }
 
 // S3: GET /api/v1/scraps/upcoming-deadlines → scraps[]
@@ -36,6 +36,7 @@ export interface RawUpcomingScrap {
   deadline: string;
   scrappedAt: string;
   dday: number | null; // dDay 분기 제거(G1 확정)
+  matchScore?: number | null; // optional — upcoming 응답 실측 미확인. ?? null 폴백 안전
 }
 
 /* ── 프론트 정규화 모델 ─────────────────────────────── */
