@@ -11,7 +11,7 @@ import {
 
 type TabType = 'profile' | 'notification';
 
-// positions = '지역' / jobCategories = '희망 직무' / experiences = '고용 형태'
+// positions = '지역' / jobCategories = '희망 직무'(단일) / experiences = '고용 형태'(복수)
 interface JobConditions {
   positions: string[];
   jobCategories: string[];
@@ -25,7 +25,6 @@ export default function MyPage() {
   const updateName = useUpdateName();
   const updateJobCategory = useUpdateJobCategory();
 
-  // 이름 편집: 서버 반영 성공 전까지는 낙관적으로 화면만 즉시 갱신, 실패 시 서버 값으로 되돌린다.
   const [nameOverride, setNameOverride] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
   const [jobConditionsError, setJobConditionsError] = useState<string | null>(null);
@@ -49,10 +48,12 @@ export default function MyPage() {
   const { profile, jobPreference } = data;
   const name = nameOverride ?? profile.name;
 
+  // E1 jobPreference → 편집기 형태 매핑.
+  // careerType은 이제 string[].
   const jobConditions: JobConditions = {
     positions: jobPreference.locations, // 지역
     jobCategories: jobPreference.jobCategories, // 희망 직무
-    experiences: jobPreference.careerType ? [jobPreference.careerType] : [], // 고용 형태
+    experiences: jobPreference.careerType ?? [], // 고용 형태
   };
 
   // E2 — 이름 수정. 서버가 공백만 있는 이름·20자 초과를 400으로 거부하므로 요청 전에 먼저 걸러낸다.
@@ -86,6 +87,7 @@ export default function MyPage() {
   // 성공한 뒤에 지역·고용형태를 job-preferences PUT으로 갱신한다.
   // PUT은 세 필드를 항상 같이 보내야 하므로, 여기서도 방금 저장한 새 jobCategories 값을
   // 그대로 함께 실어 보내 stale한 서버 값으로 덮어써지는 사고를 막는다.
+  // careerType은 string[] — edited.experiences 배열을 그대로 전송.
   const handleJobConditionsChange = (edited: JobConditions) => {
     setJobConditionsError(null);
 
@@ -95,7 +97,7 @@ export default function MyPage() {
         onSuccess: () => {
           updatePrefs.mutate(
             {
-              careerType: edited.experiences[0] ?? jobPreference.careerType ?? '',
+              careerType: edited.experiences,
               locations: edited.positions,
               jobCategories: edited.jobCategories,
             },
