@@ -34,10 +34,10 @@ export interface RawUpcomingScrap {
   title: string;
   location: string;
   employmentType: string;
-  matchScore: number | null;
   deadline: string;
   scrappedAt: string;
   dday: number | null; // dDay 분기 제거(G1 확정)
+  matchScore?: number | null; // optional — upcoming 응답 실측 미확인. ?? null 폴백 안전
 }
 
 /* ── 프론트 정규화 모델 ─────────────────────────────── */

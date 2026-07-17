@@ -21,7 +21,7 @@ export const normalizeScrap = (raw: RawScrapItem): Scrap => ({
   employmentType: raw.employmentType,
   dDay: raw.dday ?? null, // 🔴 FIX(v5): raw.dDay → raw.dday (실측 확정 — "상시" 버그의 원인)
   deadline: raw.deadline ?? null, // 🔴 FIX(v5): S1도 deadline 제공(G4 오해 해소)
-  matchScore: raw.matchScore ?? null, // ✅ G9 해소(2026-07-17): 서버가 실제 값 제공, 더 이상 하드코딩 아님
+  matchScore: raw.matchScore ?? null, // 실측: S1 제공. 부재 시 null → 블러 폴백
   scrappedAt: raw.scrappedAt,
 });
 
@@ -35,7 +35,7 @@ export const normalizeUpcomingScrap = (raw: RawUpcomingScrap): Scrap => ({
   employmentType: raw.employmentType,
   dDay: raw.dday ?? null, // G1 확정: dday(소문자) 단일
   deadline: raw.deadline ?? null,
-  matchScore: raw.matchScore ?? null, // ✅ S3도 실제 값 제공 확인됨(2026-07-17)
+  matchScore: raw.matchScore ?? null, // upcoming 실측 미확인이나 ?? null 폴백 안전
   scrappedAt: raw.scrappedAt,
 });
 
