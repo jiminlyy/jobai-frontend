@@ -57,6 +57,7 @@ export function useSubmitOnboarding() {
       // 서버(E1)가 조건의 단일 소스 — 홈 WelcomeCard(직무)·목록(matchScore) 재조회.
       qc.invalidateQueries({ queryKey: ['member', 'me'] });
       qc.invalidateQueries({ queryKey: ['jobList'] });
+      qc.invalidateQueries({ queryKey: ['notificationSettings'] });
       navigate('/', { replace: true });
     },
   });
