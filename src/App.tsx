@@ -6,7 +6,6 @@ import JobDetailPage from './pages/JobDetailPage';
 import ScrapPage from '@/pages/ScrapPage';
 import ApplicationStatusPage from '@/pages/ApplicationStatusPage';
 import MyPage from '@/pages/MyPage';
-import PlaceholderPage from './pages/PlaceholderPage';
 import OnboardingPage from '@/pages/Onboarding/OnboardingPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import OAuthCallback from '@/pages/Auth/OAuthCallback';
