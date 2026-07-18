@@ -109,6 +109,32 @@ export interface SearchJobsResult {
   searchInfo: SearchInfo;
 }
 
+// ── 홈 인기 스크랩 순위 (GET /api/v1/home/scrap-rankings) 원시 응답 ──────
+// 인증 불필요·파라미터 없음. rankings 최대 5개(스크랩수 내림차순, 마감 제외).
+// source 는 'PRIVATE'|'PUBLIC'(=CompanyType, 상세 라우트용). mockJobs 의 크롤 출처(SARAMIN 등)와 무관.
+export interface RawScrapRanking {
+  rank: number;
+  source: CompanyType; // 'PRIVATE' | 'PUBLIC'
+  sourceId: number;
+  title: string;
+  companyName: string;
+  scrapCount: number;
+}
+export interface RawScrapRankingsResult {
+  rankings: RawScrapRanking[];
+}
+
+// ── 인기 스크랩 순위 도메인 타입 ──
+// 목록 정규화와 달리 companyName 을 그대로 유지(상세이동엔 source+sourceId 만 필요).
+export interface ScrapRanking {
+  rank: number;
+  source: CompanyType;
+  sourceId: number;
+  title: string;
+  companyName: string;
+  scrapCount: number;
+}
+
 // ── 상세 API 원시 응답 ────────────────────────────────────────────────
 export interface RawPrivateJobDetail {
   id: number;
@@ -120,6 +146,9 @@ export interface RawPrivateJobDetail {
   deadline: string | null;
   applyUrl: string | null;
   jobCategory: string | null;
+  // 라이브 실측(private-jobs/808): matchScore(number), scoreReason(개행 4줄) 존재. optional 로 안전 폴백.
+  matchScore?: number | null;
+  scoreReason?: string | null;
   // summary 제거: 본문 API(private-jobs/{id}) 응답엔 summary 필드 없음(③ 라이브 확정).
   // LLM 요약은 별도 엔드포인트(/summary)에서 useJobSummary 로 독립 조회한다(④).
   createdAt: string;
@@ -142,6 +171,9 @@ export interface RawPublicJobDetail {
   isClosed: boolean;
   companyType: string | null; // 대부분 빈 값
   beginDate: string | null;
+  // 라이브 실측(public-jobs/1): matchScore·scoreReason 필드 존재(현재 값 null=미산출). optional 안전 폴백.
+  matchScore?: number | null;
+  scoreReason?: string | null;
 }
 
 // ── 상세용 공통 타입 (판별 유니온: source 로 구분) ───────────────────
@@ -156,6 +188,9 @@ interface JobDetailBase {
   contentFormat: 'text' | 'html'; // 사기업 text / 공공 html
   deadline: string | null; // null = 상시모집
   applyUrl: string | null;
+  // 상세 응답 점수 — PRIVATE·PUBLIC 공통(라이브 실측 확인). null = 미산출(이력서 미임베딩/scoring 전).
+  matchScore: number | null;
+  scoreReason: string | null;
 }
 
 export interface PrivateJobDetail extends JobDetailBase {
