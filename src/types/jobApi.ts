@@ -120,6 +120,9 @@ export interface RawPrivateJobDetail {
   deadline: string | null;
   applyUrl: string | null;
   jobCategory: string | null;
+  // 라이브 실측(private-jobs/808): matchScore(number), scoreReason(개행 4줄) 존재. optional 로 안전 폴백.
+  matchScore?: number | null;
+  scoreReason?: string | null;
   // summary 제거: 본문 API(private-jobs/{id}) 응답엔 summary 필드 없음(③ 라이브 확정).
   // LLM 요약은 별도 엔드포인트(/summary)에서 useJobSummary 로 독립 조회한다(④).
   createdAt: string;
@@ -161,6 +164,9 @@ interface JobDetailBase {
 export interface PrivateJobDetail extends JobDetailBase {
   source: 'PRIVATE';
   jobCategory: string | null;
+  // 상세 응답 점수. Base 미승격: public-jobs 응답 동일필드 존재 여부 미확인(1-2 ❓) — 확인 후 승격 검토.
+  matchScore: number | null;
+  scoreReason: string | null;
   // summary 는 본문 타입에서 분리 — 별도 /summary 엔드포인트(useJobSummary)로 조회(④).
   createdAt: string;
 }
