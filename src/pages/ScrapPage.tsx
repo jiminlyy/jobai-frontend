@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScraps, useToggleScrap, useDeleteScraps } from '@/hooks/useScraps';
 import ScrapTable from '@/components/scrap/ScrapTable';
+import type { ScrapSortMode } from '@/components/scrap/ScrapTable';
 import EmptyScrap from '@/components/common/EmptyScrap';
 import ScrapTabNavigation from '@/components/scrap/ScrapTabNavigation';
 import type { ScrapKey, ScrapSource } from '@/types/scrap';
@@ -19,6 +20,7 @@ export default function ScrapPage() {
   const [selectedKeys, setSelectedKeys] = useState<Set<ScrapKey>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [sortAsc, setSortAsc] = useState(true);
+  const [sortMode, setSortMode] = useState<ScrapSortMode>('deadline');
 
   const { data, isLoading } = useScraps();
   const toggle = useToggleScrap();
@@ -29,7 +31,7 @@ export default function ScrapPage() {
   // 탭·정렬 변경 시 1페이지로 리셋(범위 이탈 방지)
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, sortAsc]);
+  }, [activeTab, sortAsc, sortMode]);
 
   const filteredData = useMemo(() => {
     let filtered = scraps;
@@ -39,14 +41,24 @@ export default function ScrapPage() {
     } else if (activeTab === 'deadline') {
       filtered = filtered.filter((s) => s.dDay !== null && s.dDay <= 0);
     }
-    // §1.3: dDay 클라 재정렬. null끼리는 0(Infinity-Infinity=NaN 가드)
+    // sortMode에 따라 1차 정렬 기준을 통째로 바꾼다.
+    // - deadline: 마감일 우선(동점이면 점수 높은 순)
+    // - score: 점수 우선(동점이면 마감일 빠른 순)
     return [...filtered].sort((a, b) => {
       const av = dv(a.dDay);
       const bv = dv(b.dDay);
-      if (av === bv) return 0;
-      return sortAsc ? av - bv : bv - av;
+      const aScore = a.matchScore ?? -1;
+      const bScore = b.matchScore ?? -1;
+
+      if (sortMode === 'deadline') {
+        if (av !== bv) return sortAsc ? av - bv : bv - av;
+        return bScore - aScore; // 동점 시 높은 점수 먼저
+      } else {
+        if (aScore !== bScore) return sortAsc ? aScore - bScore : bScore - aScore;
+        return av - bv; // 동점 시 빠른 마감일 먼저
+      }
     });
-  }, [scraps, activeTab, sortAsc]);
+  }, [scraps, activeTab, sortAsc, sortMode]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = useMemo(() => {
@@ -87,6 +99,14 @@ export default function ScrapPage() {
 
   const handleSortToggle = () => setSortAsc((v) => !v);
 
+  // 정렬 기준을 바꿀 때, 그 기준에 맞는 자연스러운 기본 방향으로 자동 전환한다.
+  // - 마감기한순 기본: 가까운 날짜 먼저(오름차순)
+  // - 점수순 기본: 높은 점수 먼저(내림차순)
+  const handleSortModeChange = (mode: ScrapSortMode) => {
+    setSortMode(mode);
+    setSortAsc(mode === 'deadline');
+  };
+
   // 스크랩 행 클릭 시 해당 공고 상세 페이지로 이동
   const handleItemClick = (source: ScrapSource, sourceId: number) => {
     navigate(`/jobs/${source}/${sourceId}`);
@@ -125,6 +145,8 @@ export default function ScrapPage() {
           allSelected={allSelected}
           onRemove={handleRemove}
           onDeleteSelected={handleDeleteSelected}
+          sortMode={sortMode}
+          onSortModeChange={handleSortModeChange}
           onSortToggle={handleSortToggle}
           onItemClick={handleItemClick}
           activeTab={activeTab}
