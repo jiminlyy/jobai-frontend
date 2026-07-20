@@ -70,7 +70,7 @@ export default function DeadlineCard() {
                   <span className="text-[14px] font-medium leading-[150%] tracking-[-0.28px] text-blue-500">
                     {formatDDay(s.dDay)}
                   </span>
-                  <span className="text-[12px] font-normal leading-[150%] tracking-[-0.24px] text-gray-600">
+                  <span className="whitespace-nowrap text-[10px] font-normal leading-[150%] tracking-[-0.24px] text-gray-600">
                     {s.deadline ?? ''}
                   </span>
                 </div>
