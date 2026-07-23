@@ -217,8 +217,8 @@ export default function GuestHome() {
                         {row.sub}
                       </span>
                     </div>
-                    {/* 3C-6 chevron 24 rotate-180 */}
-                    <ChevronIcon className="h-6 w-6 flex-shrink-0 rotate-180 text-gray-400" />
+                    {/* 3C-6 chevron 24 (우향, 상세 진입) */}
+                    <ChevronIcon className="h-6 w-6 flex-shrink-0 text-gray-400" />
                   </div>
                 );
                 return (
